@@ -15,11 +15,11 @@ properties.load(project.rootProject.file("local.properties").reader())
 val server = properties.getProperty("server")
 
 android {
-    namespace = "cz.mendelu.coffeepath"
+    namespace = "com.example.coffepath"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "cz.mendelu.coffeepath"
+        applicationId = "com.example.coffepath"
         minSdk = 28
         targetSdk = 36
         versionCode = 1
