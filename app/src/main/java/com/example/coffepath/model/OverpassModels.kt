@@ -13,7 +13,7 @@ data class OverpassResponse(
 data class OverpassElement(
     @Json(name = "type")
     val type: String,
-    
+
     @Json(name = "id")
     val id: Long,
 
