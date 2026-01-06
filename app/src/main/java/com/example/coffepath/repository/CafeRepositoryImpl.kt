@@ -5,6 +5,8 @@ import com.example.coffepath.database.CafeDao
 import com.example.coffepath.model.Cafe
 import com.example.coffepath.model.OverpassResponse
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class CafeRepositoryImpl @Inject constructor(
@@ -40,7 +42,8 @@ class CafeRepositoryImpl @Inject constructor(
     ): Result<OverpassResponse> {
         return try {
             val query = OverpassApi.buildQuery(south, west, north, east)
-            val response = api.getCafes(query)
+            val requestBody = query.toRequestBody("text/plain".toMediaTypeOrNull())
+            val response = api.getCafes(requestBody)
 
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)

@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">CoffeePath</string>
+    <string name="back">Zpět</string>
+    <string name="search">Hledat</string>
+    <string name="favorites">Oblíbené</string>
+    <string name="load_cafes">Načíst kavárny</string>
+    <string name="reload_cafes">Znovu načíst kavárny v oblasti</string>
+    <string name="cafe_details">Detaily kavárny</string>
+    <string name="favorite_cafes">Oblíbené kavárny</string>
+    <string name="search_cafes">Hledat kavárny</string>
+    <string name="no_favorites">Zatím žádné oblíbené kavárny</string>
+    <string name="add_favorites_hint">Přidejte kavárny do oblíbených z mapy</string>
+    <string name="search_coming_soon">Funkce vyhledávání bude implementována v další fázi</string>
+    <string name="cafe_not_found">Kavárna nenalezena</string>
+    <string name="address">Adresa</string>
+    <string name="opening_hours">Otevírací hodiny</string>
+    <string name="coordinates">Souřadnice</string>
+    <string name="hours_label">Hodiny: %s</string>
+    <string name="error_prefix">Chyba: %s</string>
+</resources>
