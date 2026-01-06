@@ -5,8 +5,11 @@ import com.example.coffepath.BuildConfig
 import com.example.coffepath.api.OverpassApi
 import com.example.coffepath.database.CafeDao
 import com.example.coffepath.database.CafeDatabase
+import com.example.coffepath.database.ReviewDao
+import com.example.coffepath.database.UserProfileDao
 import com.example.coffepath.repository.CafeRepositoryImpl
 import com.example.coffepath.repository.ICafeRepository
+import com.example.coffepath.repository.PreferencesRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -78,7 +81,25 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideReviewDao(database: CafeDatabase): ReviewDao {
+        return database.reviewDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserProfileDao(database: CafeDatabase): UserProfileDao {
+        return database.userProfileDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideCafeRepository(dao: CafeDao, api: OverpassApi): ICafeRepository {
         return CafeRepositoryImpl(dao, api)
+    }
+
+    @Provides
+    @Singleton
+    fun providePreferencesRepository(@ApplicationContext context: Context): PreferencesRepository {
+        return PreferencesRepository(context)
     }
 }

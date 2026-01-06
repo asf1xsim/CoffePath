@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.kapt)
     alias(libs.plugins.com.google.devtools.ksp)
     alias(libs.plugins.com.google.dagger.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val properties = Properties()
@@ -111,5 +112,13 @@ dependencies {
     implementation(libs.room.runtime)
     kapt(libs.room.compiler.kapt)
 
+    // Material Icons Extended
     implementation(libs.androidx.material.icons.extended)
+
+    // DataStore (NEW)
+    implementation(libs.datastore.preferences)
+    implementation(libs.datastore.core)
+
+    // Kotlin Serialization (NEW)
+    implementation(libs.kotlinx.serialization.json)
 }

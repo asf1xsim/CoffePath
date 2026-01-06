@@ -27,6 +27,10 @@ googlemap_compose_utils = "6.12.1"
 room = "2.8.3"
 lifecycle = "2.9.4"
 
+# DataStore и Serialization
+datastore = "1.1.1"
+serialization = "1.7.3"
+
 
 
 
@@ -82,6 +86,11 @@ googlemap_compose_utils = { group = "com.google.maps.android", name = "maps-comp
 
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastore" }
+
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -89,3 +98,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt_v" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }
 org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
