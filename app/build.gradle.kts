@@ -115,10 +115,22 @@ dependencies {
     // Material Icons Extended
     implementation(libs.androidx.material.icons.extended)
 
-    // DataStore (NEW)
+    // DataStore
     implementation(libs.datastore.preferences)
     implementation(libs.datastore.core)
 
-    // Kotlin Serialization (NEW)
+    // Kotlin Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // ML Kit (
+    implementation(libs.mlkit.image.labeling)
+    implementation(libs.mlkit.text.recognition)
+
+    // Camera
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+
+    // Coil
+    implementation(libs.coil.compose)
 }
