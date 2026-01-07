@@ -11,7 +11,9 @@ import com.example.coffepath.mlkit.DrinkClassifier
 import com.example.coffepath.mlkit.MenuOCRReader
 import com.example.coffepath.repository.CafeRepositoryImpl
 import com.example.coffepath.repository.ICafeRepository
+import com.example.coffepath.repository.IReviewRepository
 import com.example.coffepath.repository.PreferencesRepository
+import com.example.coffepath.repository.ReviewRepositoryImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -97,6 +99,15 @@ object AppModule {
     @Singleton
     fun provideCafeRepository(dao: CafeDao, api: OverpassApi): ICafeRepository {
         return CafeRepositoryImpl(dao, api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReviewRepository(
+        reviewDao: ReviewDao,
+        userProfileDao: UserProfileDao
+    ): IReviewRepository {
+        return ReviewRepositoryImpl(reviewDao, userProfileDao)
     }
 
     @Provides

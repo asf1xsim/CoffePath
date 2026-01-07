@@ -7,5 +7,8 @@ sealed class Destination(val route: String) {
     object CafeDetailScreen : Destination("cafe_detail/{cafeId}") {
         fun createRoute(cafeId: Long) = "cafe_detail/$cafeId"
     }
+    object AddReviewScreen : Destination("add_review/{cafeId}") {
+        fun createRoute(cafeId: Long) = "add_review/$cafeId"
+    }
     object MLKitTestScreen : Destination("mlkit_test")
 }
