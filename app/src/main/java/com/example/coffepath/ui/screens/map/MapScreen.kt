@@ -3,6 +3,7 @@ package com.example.coffepath.ui.screens.map
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +30,9 @@ fun MapScreen(
             TopAppBar(
                 title = { Text("CoffeePath") },
                 actions = {
+                    IconButton(onClick = { navigation.navigateToMLKitTest() }) {
+                        Icon(Icons.Default.Science, contentDescription = "Test ML Kit")
+                    }
                     IconButton(onClick = { navigation.navigateToSearch() }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }

@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.example.coffepath.ui.screens.detail.CafeDetailScreen
 import com.example.coffepath.ui.screens.favorites.FavoritesScreen
 import com.example.coffepath.ui.screens.map.MapScreen
+import com.example.coffepath.ui.screens.mlkit.MLKitTestScreen
 import com.example.coffepath.ui.screens.search.SearchScreen
 
 @Composable
@@ -45,6 +46,10 @@ fun NavGraph(
             )
         ) {
             CafeDetailScreen(navigation = navigation)
+        }
+
+        composable(Destination.MLKitTestScreen.route) {
+            MLKitTestScreen(navigation = navigation)
         }
     }
 }

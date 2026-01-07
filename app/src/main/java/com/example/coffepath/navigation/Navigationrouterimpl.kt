@@ -24,6 +24,10 @@ class NavigationRouterImpl(private val navController: NavController) : INavigati
         navController.navigate(Destination.SearchScreen.route)
     }
 
+    override fun navigateToMLKitTest() {
+        navController.navigate(Destination.MLKitTestScreen.route)
+    }
+
     override fun navigateToCafeDetail(cafeId: Long) {
         navController.navigate(Destination.CafeDetailScreen.createRoute(cafeId))
     }

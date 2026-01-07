@@ -8,5 +8,6 @@ interface INavigationRouter {
     fun navigateToMainMap()
     fun navigateToFavorites()
     fun navigateToSearch()
+    fun navigateToMLKitTest()
     fun navigateToCafeDetail(cafeId: Long)
 }

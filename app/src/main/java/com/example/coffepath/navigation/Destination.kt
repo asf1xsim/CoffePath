@@ -7,4 +7,5 @@ sealed class Destination(val route: String) {
     object CafeDetailScreen : Destination("cafe_detail/{cafeId}") {
         fun createRoute(cafeId: Long) = "cafe_detail/$cafeId"
     }
+    object MLKitTestScreen : Destination("mlkit_test")
 }
