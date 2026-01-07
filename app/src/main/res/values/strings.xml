@@ -1,21 +1,35 @@
 <resources>
     <string name="app_name">CoffeePath</string>
+
+    <!-- Navigation -->
     <string name="back">Back</string>
     <string name="search">Search</string>
     <string name="favorites">Favorites</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+
+    <!-- Map Screen -->
     <string name="load_cafes">Load Cafes</string>
     <string name="reload_cafes">Reload Cafes in Area</string>
+
+    <!-- Cafe Detail Screen -->
     <string name="cafe_details">Cafe Details</string>
     <string name="cafe_not_found">Cafe not found</string>
     <string name="address">Address</string>
     <string name="opening_hours">Opening Hours</string>
     <string name="coordinates">Coordinates</string>
     <string name="hours_label">Hours: %s</string>
+
+    <!-- Favorites Screen -->
     <string name="favorite_cafes">Favorite Cafes</string>
     <string name="no_favorites">No favorite cafes yet</string>
     <string name="add_favorites_hint">Add cafes to favorites from the map</string>
+
+    <!-- Search Screen -->
     <string name="search_cafes">Search Cafes</string>
     <string name="search_coming_soon">Search functionality will be implemented in the next phase</string>
+
+    <!-- Add Review Screen -->
     <string name="add_review">Add Review</string>
     <string name="review_for">Review for %s</string>
     <string name="rating">Rating</string>
@@ -32,12 +46,49 @@
     <string name="remove">Remove</string>
     <string name="select_drink_manually">Select drink type manually</string>
     <string name="stars">%s stars</string>
+
+    <!-- Reviews -->
     <string name="reviews">Reviews</string>
     <string name="reviews_count">Reviews (%d)</string>
     <string name="no_reviews">No reviews yet</string>
     <string name="be_first_review">Be the first to review this cafe!</string>
     <string name="review">review</string>
     <string name="reviews_plural">reviews</string>
+    <string name="recent_reviews">Recent Reviews</string>
+    <string name="no_reviews_profile">No reviews yet</string>
+    <string name="start_reviewing">Start reviewing cafes!</string>
+
+    <!-- Profile Screen -->
+    <string name="edit_name">Edit Name</string>
+    <string name="edit_photo">Edit photo</string>
+    <string name="update_profile_photo">Update Profile Photo</string>
+    <string name="done">Done</string>
+    <string name="name">Name</string>
+    <string name="save">Save</string>
+    <string name="member_since">Member since %s</string>
+    <string name="visited">Visited</string>
+
+    <!-- Settings Screen -->
+    <string name="appearance">Appearance</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="language">Language</string>
+    <string name="app_language">App Language</string>
+    <string name="english">English</string>
+    <string name="czech">Čeština</string>
+    <string name="select_language">Select Language</string>
+    <string name="notifications">Notifications</string>
+    <string name="push_notifications">Push Notifications</string>
+    <string name="about">About</string>
+    <string name="app_version">App Version</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="reset_settings_subtitle">Reset all settings to default</string>
+    <string name="reset_settings_confirm">Are you sure you want to reset all settings to default values?</string>
+    <string name="reset">Reset</string>
+    <string name="selected">Selected</string>
+
+    <!-- Photo Picker -->
     <string name="add_photo">Add photo</string>
     <string name="tap_to_add_photo">Tap to add photo</string>
     <string name="choose_photo_source">Choose photo source</string>
@@ -45,6 +96,8 @@
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="permission_required">Permission required</string>
     <string name="permission_explanation">This app needs camera and storage permissions to take and save photos. Please grant the permissions in app settings.</string>
+
+    <!-- ML Kit Test Screen -->
     <string name="mlkit_testing">ML Kit Testing</string>
     <string name="select_test_mode">Select test mode:</string>
     <string name="drink_classification">Drink Classification</string>
@@ -54,10 +107,17 @@
     <string name="classification_result">Classification Result</string>
     <string name="ocr_result">OCR Result</string>
     <string name="select_photo_hint">Select a photo and tap the button to analyze</string>
+
+    <!-- Errors -->
     <string name="error_prefix">Error: %s</string>
     <string name="error_provide_rating_comment">Please provide rating and comment</string>
     <string name="error_save_review">Failed to save review: %s</string>
     <string name="error_classify_drink">Failed to classify drink: %s</string>
+    <string name="error_load_profile">Failed to load profile</string>
+    <string name="error_update_name">Failed to update name: %s</string>
+    <string name="error_update_photo">Failed to update photo: %s</string>
+
+    <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>

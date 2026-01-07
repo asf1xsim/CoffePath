@@ -1,21 +1,35 @@
 <resources>
     <string name="app_name">CoffeePath</string>
+
+    <!-- Navigation -->
     <string name="back">Zpět</string>
     <string name="search">Hledat</string>
     <string name="favorites">Oblíbené</string>
+    <string name="profile">Profil</string>
+    <string name="settings">Nastavení</string>
+
+    <!-- Map Screen -->
     <string name="load_cafes">Načíst kavárny</string>
     <string name="reload_cafes">Znovu načíst kavárny v oblasti</string>
+
+    <!-- Cafe Detail Screen -->
     <string name="cafe_details">Detaily kavárny</string>
     <string name="cafe_not_found">Kavárna nenalezena</string>
     <string name="address">Adresa</string>
     <string name="opening_hours">Otevírací hodiny</string>
     <string name="coordinates">Souřadnice</string>
     <string name="hours_label">Hodiny: %s</string>
+
+    <!-- Favorites Screen -->
     <string name="favorite_cafes">Oblíbené kavárny</string>
     <string name="no_favorites">Zatím žádné oblíbené kavárny</string>
     <string name="add_favorites_hint">Přidejte kavárny do oblíbených z mapy</string>
+
+    <!-- Search Screen -->
     <string name="search_cafes">Hledat kavárny</string>
     <string name="search_coming_soon">Funkce vyhledávání bude implementována v další fázi</string>
+
+    <!-- Add Review Screen -->
     <string name="add_review">Přidat recenzi</string>
     <string name="review_for">Recenze pro %s</string>
     <string name="rating">Hodnocení</string>
@@ -32,12 +46,49 @@
     <string name="remove">Odstranit</string>
     <string name="select_drink_manually">Vybrat typ nápoje ručně</string>
     <string name="stars">%s hvězdiček</string>
+
+    <!-- Reviews -->
     <string name="reviews">Recenze</string>
     <string name="reviews_count">Recenze (%d)</string>
     <string name="no_reviews">Zatím žádné recenze</string>
     <string name="be_first_review">Buďte první, kdo recenzuje tuto kavárnu!</string>
     <string name="review">recenze</string>
     <string name="reviews_plural">recenzí</string>
+    <string name="recent_reviews">Poslední recenze</string>
+    <string name="no_reviews_profile">Zatím žádné recenze</string>
+    <string name="start_reviewing">Začněte recenzovat kavárny!</string>
+
+    <!-- Profile Screen -->
+    <string name="edit_name">Upravit jméno</string>
+    <string name="edit_photo">Upravit fotku</string>
+    <string name="update_profile_photo">Aktualizovat profilovou fotku</string>
+    <string name="done">Hotovo</string>
+    <string name="name">Jméno</string>
+    <string name="save">Uložit</string>
+    <string name="member_since">Člen od %s</string>
+    <string name="visited">Navštíveno</string>
+
+    <!-- Settings Screen -->
+    <string name="appearance">Vzhled</string>
+    <string name="dark_theme">Tmavý režim</string>
+    <string name="enabled">Zapnuto</string>
+    <string name="disabled">Vypnuto</string>
+    <string name="language">Jazyk</string>
+    <string name="app_language">Jazyk aplikace</string>
+    <string name="english">English</string>
+    <string name="czech">Čeština</string>
+    <string name="select_language">Vyberte jazyk</string>
+    <string name="notifications">Oznámení</string>
+    <string name="push_notifications">Push oznámení</string>
+    <string name="about">O aplikaci</string>
+    <string name="app_version">Verze aplikace</string>
+    <string name="reset_settings">Resetovat nastavení</string>
+    <string name="reset_settings_subtitle">Obnovit všechna nastavení na výchozí</string>
+    <string name="reset_settings_confirm">Opravdu chcete obnovit všechna nastavení na výchozí hodnoty?</string>
+    <string name="reset">Resetovat</string>
+    <string name="selected">Vybráno</string>
+
+    <!-- Photo Picker -->
     <string name="add_photo">Přidat fotku</string>
     <string name="tap_to_add_photo">Klepněte pro přidání fotky</string>
     <string name="choose_photo_source">Vyberte zdroj fotky</string>
@@ -45,6 +96,8 @@
     <string name="choose_from_gallery">Vybrat z galerie</string>
     <string name="permission_required">Vyžadováno oprávnění</string>
     <string name="permission_explanation">Tato aplikace potřebuje oprávnění k fotoaparátu a úložišti pro pořizování a ukládání fotek. Prosím udělte oprávnění v nastavení aplikace.</string>
+
+    <!-- ML Kit Test Screen -->
     <string name="mlkit_testing">Testování ML Kit</string>
     <string name="select_test_mode">Vyberte režim testu:</string>
     <string name="drink_classification">Klasifikace nápojů</string>
@@ -54,10 +107,17 @@
     <string name="classification_result">Výsledek klasifikace</string>
     <string name="ocr_result">Výsledek OCR</string>
     <string name="select_photo_hint">Vyberte fotku a klepněte na tlačítko pro analýzu</string>
+
+    <!-- Errors -->
     <string name="error_prefix">Chyba: %s</string>
     <string name="error_provide_rating_comment">Prosím zadejte hodnocení a komentář</string>
     <string name="error_save_review">Nepodařilo se uložit recenzi: %s</string>
     <string name="error_classify_drink">Nepodařilo se klasifikovat nápoj: %s</string>
+    <string name="error_load_profile">Nepodařilo se načíst profil</string>
+    <string name="error_update_name">Nepodařilo se aktualizovat jméno: %s</string>
+    <string name="error_update_photo">Nepodařilo se aktualizovat fotku: %s</string>
+
+    <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Zrušit</string>
     <string name="dismiss">Zavřít</string>

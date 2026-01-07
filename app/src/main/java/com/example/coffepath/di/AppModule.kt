@@ -9,11 +9,7 @@ import com.example.coffepath.database.ReviewDao
 import com.example.coffepath.database.UserProfileDao
 import com.example.coffepath.mlkit.DrinkClassifier
 import com.example.coffepath.mlkit.MenuOCRReader
-import com.example.coffepath.repository.CafeRepositoryImpl
-import com.example.coffepath.repository.ICafeRepository
-import com.example.coffepath.repository.IReviewRepository
-import com.example.coffepath.repository.PreferencesRepository
-import com.example.coffepath.repository.ReviewRepositoryImpl
+import com.example.coffepath.repository.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -108,6 +104,15 @@ object AppModule {
         userProfileDao: UserProfileDao
     ): IReviewRepository {
         return ReviewRepositoryImpl(reviewDao, userProfileDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserProfileRepository(
+        userProfileDao: UserProfileDao,
+        preferencesRepository: PreferencesRepository
+    ): IUserProfileRepository {
+        return UserProfileRepositoryImpl(userProfileDao, preferencesRepository)
     }
 
     @Provides

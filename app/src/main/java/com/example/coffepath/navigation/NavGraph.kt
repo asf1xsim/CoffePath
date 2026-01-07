@@ -12,8 +12,10 @@ import com.example.coffepath.ui.screens.detail.CafeDetailScreen
 import com.example.coffepath.ui.screens.favorites.FavoritesScreen
 import com.example.coffepath.ui.screens.map.MapScreen
 import com.example.coffepath.ui.screens.mlkit.MLKitTestScreen
+import com.example.coffepath.ui.screens.profile.ProfileScreen
 import com.example.coffepath.ui.screens.review.AddReviewScreen
 import com.example.coffepath.ui.screens.search.SearchScreen
+import com.example.coffepath.ui.screens.settings.SettingsScreen
 
 @Composable
 fun NavGraph(
@@ -40,6 +42,14 @@ fun NavGraph(
             SearchScreen(navigation = navigation)
         }
 
+        composable(Destination.ProfileScreen.route) {
+            ProfileScreen(navigation = navigation)
+        }
+
+        composable(Destination.SettingsScreen.route) {
+            SettingsScreen(navigation = navigation)
+        }
+
         composable(
             route = Destination.CafeDetailScreen.route,
             arguments = listOf(
@@ -57,6 +67,7 @@ fun NavGraph(
         ) {
             AddReviewScreen(navigation = navigation)
         }
+
         composable(Destination.MLKitTestScreen.route) {
             MLKitTestScreen(navigation = navigation)
         }

@@ -3,6 +3,7 @@ package com.example.coffepath.ui.screens.map
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -38,6 +39,9 @@ fun MapScreen(
                     }
                     IconButton(onClick = { navigation.navigateToFavorites() }) {
                         Icon(Icons.Default.Favorite, contentDescription = "Favorites")
+                    }
+                    IconButton(onClick = { navigation.navigateToProfile() }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
                     }
                 }
             )

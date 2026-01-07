@@ -120,6 +120,16 @@ class PreferencesRepository(private val context: Context) {
             preferences.clear()
         }
     }
+    suspend fun updateTheme(isDark: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IS_DARK_THEME] = isDark
+        }
+    }
+    suspend fun updateNotificationsEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
 
     suspend fun getUserId(): String {
         val preferences = dataStore.data.map { it[PreferencesKeys.USER_ID] }
