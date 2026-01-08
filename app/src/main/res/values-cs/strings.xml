@@ -27,7 +27,45 @@
 
     <!-- Search Screen -->
     <string name="search_cafes">Hledat kavárny</string>
+    <string name="search_placeholder">Hledat kavárny...</string>
     <string name="search_coming_soon">Funkce vyhledávání bude implementována v další fázi</string>
+    <string name="search_for_cafes">Hledat kavárny</string>
+    <string name="no_results_found">Nenalezeny žádné výsledky</string>
+    <string name="try_different_filters">Zkuste hledat \"%s\" s jinými filtry</string>
+    <string name="results_count">%d výsledků</string>
+    <string name="result_singular">výsledek</string>
+    <string name="results_plural">výsledky</string>
+
+    <!-- Search History -->
+    <string name="recent_searches">Poslední vyhledávání</string>
+    <string name="clear_all">Vymazat vše</string>
+    <string name="clear_history">Vymazat historii</string>
+    <string name="no_search_history">Žádná historie vyhledávání</string>
+
+    <!-- Filters -->
+    <string name="filters">Filtry</string>
+    <string name="filters_active">Filtry (%d)</string>
+    <string name="sort">Seřadit</string>
+    <string name="apply">Použít</string>
+    <string name="clear">Vymazat</string>
+    <string name="minimum_rating">Minimální hodnocení</string>
+    <string name="minimum_rating_value">Minimální hodnocení: %s</string>
+    <string name="rating_any">Jakékoliv</string>
+    <string name="has_reviews">Má recenze</string>
+    <string name="favorites_only">Pouze oblíbené</string>
+    <string name="open_now">Otevřeno nyní</string>
+    <string name="max_distance">Maximální vzdálenost</string>
+    <string name="max_distance_km">Maximální vzdálenost: %s km</string>
+
+    <!-- Sort Options -->
+    <string name="sort_name_asc">Název (A-Z)</string>
+    <string name="sort_name_desc">Název (Z-A)</string>
+    <string name="sort_rating_desc">Hodnocení (Vysoké → Nízké)</string>
+    <string name="sort_rating_asc">Hodnocení (Nízké → Vysoké)</string>
+    <string name="sort_distance_asc">Vzdálenost (Blízko → Daleko)</string>
+    <string name="sort_distance_desc">Vzdálenost (Daleko → Blízko)</string>
+    <string name="sort_reviews_desc">Nejvíce recenzí</string>
+    <string name="sort_reviews_asc">Nejméně recenzí</string>
 
     <!-- Add Review Screen -->
     <string name="add_review">Přidat recenzi</string>
@@ -116,9 +154,11 @@
     <string name="error_load_profile">Nepodařilo se načíst profil</string>
     <string name="error_update_name">Nepodařilo se aktualizovat jméno: %s</string>
     <string name="error_update_photo">Nepodařilo se aktualizovat fotku: %s</string>
+    <string name="error_search_failed">Vyhledávání selhalo: %s</string>
 
     <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Zrušit</string>
     <string name="dismiss">Zavřít</string>
+    <string name="close">Zavřít</string>
 </resources>

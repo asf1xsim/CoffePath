@@ -27,7 +27,45 @@
 
     <!-- Search Screen -->
     <string name="search_cafes">Search Cafes</string>
+    <string name="search_placeholder">Search cafes...</string>
     <string name="search_coming_soon">Search functionality will be implemented in the next phase</string>
+    <string name="search_for_cafes">Search for cafes</string>
+    <string name="no_results_found">No results found</string>
+    <string name="try_different_filters">Try searching for \"%s\" with different filters</string>
+    <string name="results_count">%d results</string>
+    <string name="result_singular">result</string>
+    <string name="results_plural">results</string>
+
+    <!-- Search History -->
+    <string name="recent_searches">Recent Searches</string>
+    <string name="clear_all">Clear All</string>
+    <string name="clear_history">Clear History</string>
+    <string name="no_search_history">No search history</string>
+
+    <!-- Filters -->
+    <string name="filters">Filters</string>
+    <string name="filters_active">Filters (%d)</string>
+    <string name="sort">Sort</string>
+    <string name="apply">Apply</string>
+    <string name="clear">Clear</string>
+    <string name="minimum_rating">Minimum Rating</string>
+    <string name="minimum_rating_value">Minimum Rating: %s</string>
+    <string name="rating_any">Any</string>
+    <string name="has_reviews">Has Reviews</string>
+    <string name="favorites_only">Favorites Only</string>
+    <string name="open_now">Open Now</string>
+    <string name="max_distance">Maximum Distance</string>
+    <string name="max_distance_km">Maximum Distance: %s km</string>
+
+    <!-- Sort Options -->
+    <string name="sort_name_asc">Name (A-Z)</string>
+    <string name="sort_name_desc">Name (Z-A)</string>
+    <string name="sort_rating_desc">Rating (High to Low)</string>
+    <string name="sort_rating_asc">Rating (Low to High)</string>
+    <string name="sort_distance_asc">Distance (Near to Far)</string>
+    <string name="sort_distance_desc">Distance (Far to Near)</string>
+    <string name="sort_reviews_desc">Most Reviews</string>
+    <string name="sort_reviews_asc">Least Reviews</string>
 
     <!-- Add Review Screen -->
     <string name="add_review">Add Review</string>
@@ -116,9 +154,11 @@
     <string name="error_load_profile">Failed to load profile</string>
     <string name="error_update_name">Failed to update name: %s</string>
     <string name="error_update_photo">Failed to update photo: %s</string>
+    <string name="error_search_failed">Search failed: %s</string>
 
     <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>
+    <string name="close">Close</string>
 </resources>

@@ -7,6 +7,7 @@ import com.example.coffepath.database.CafeDao
 import com.example.coffepath.database.CafeDatabase
 import com.example.coffepath.database.ReviewDao
 import com.example.coffepath.database.UserProfileDao
+import com.example.coffepath.repository.PreferencesRepository
 import com.example.coffepath.mlkit.DrinkClassifier
 import com.example.coffepath.mlkit.MenuOCRReader
 import com.example.coffepath.repository.*
@@ -113,6 +114,16 @@ object AppModule {
         preferencesRepository: PreferencesRepository
     ): IUserProfileRepository {
         return UserProfileRepositoryImpl(userProfileDao, preferencesRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchRepository(
+        cafeDao: CafeDao,
+        reviewDao: ReviewDao,
+        preferencesRepository: PreferencesRepository
+    ): ISearchRepository {
+        return SearchRepositoryImpl(cafeDao, reviewDao, preferencesRepository)
     }
 
     @Provides

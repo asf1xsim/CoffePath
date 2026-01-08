@@ -7,6 +7,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 import java.io.IOException
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_preferences")
@@ -25,6 +28,7 @@ class PreferencesRepository(private val context: Context) {
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val LAST_SYNC_TIMESTAMP = longPreferencesKey("last_sync_timestamp")
+        val SEARCH_HISTORY = stringPreferencesKey("search_history")
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
@@ -36,6 +40,12 @@ class PreferencesRepository(private val context: Context) {
             }
         }
         .map { preferences ->
+            val searchHistoryJson = preferences[PreferencesKeys.SEARCH_HISTORY] ?: "[]"
+            val searchHistory = try {
+                Json.decodeFromString<List<String>>(searchHistoryJson)
+            } catch (e: Exception) {
+                emptyList()
+            }
             UserPreferences(
                 userId = preferences[PreferencesKeys.USER_ID] ?: UserPreferences.generateDefaultUserId(),
                 userName = preferences[PreferencesKeys.USER_NAME] ?: "User",
@@ -46,7 +56,8 @@ class PreferencesRepository(private val context: Context) {
                 lastMapZoom = preferences[PreferencesKeys.LAST_MAP_ZOOM] ?: 12f,
                 isFirstLaunch = preferences[PreferencesKeys.IS_FIRST_LAUNCH] ?: true,
                 notificationsEnabled = preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] ?: true,
-                lastSyncTimestamp = preferences[PreferencesKeys.LAST_SYNC_TIMESTAMP] ?: 0L
+                lastSyncTimestamp = preferences[PreferencesKeys.LAST_SYNC_TIMESTAMP] ?: 0L,
+                searchHistory = searchHistory
             )
         }
 
@@ -128,6 +139,12 @@ class PreferencesRepository(private val context: Context) {
     suspend fun updateNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
+    suspend fun updateSearchHistory(history: List<String>) {
+        context.dataStore.edit { preferences ->
+            val json = Json.encodeToString(history)
+            preferences[PreferencesKeys.SEARCH_HISTORY] = json
         }
     }
 

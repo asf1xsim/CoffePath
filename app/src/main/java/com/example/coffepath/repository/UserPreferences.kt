@@ -13,7 +13,8 @@ data class UserPreferences(
     val lastMapZoom: Float = 12f,
     val isFirstLaunch: Boolean = true,
     val notificationsEnabled: Boolean = true,
-    val lastSyncTimestamp: Long = 0L
+    val lastSyncTimestamp: Long = 0L,
+    val searchHistory: List<String> = emptyList()
 ) {
     companion object {
         fun generateDefaultUserId(): String {
