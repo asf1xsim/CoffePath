@@ -1,6 +1,7 @@
 package com.example.coffepath.repository
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
@@ -16,6 +17,12 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 class PreferencesRepository(private val context: Context) {
     private val dataStore = context.dataStore
+
+    // ИСПРАВЛЕНИЕ: SharedPreferences для синхронного чтения языка
+    private val sharedPrefs: SharedPreferences = context.getSharedPreferences(
+        "app_settings",
+        Context.MODE_PRIVATE
+    )
 
     private object PreferencesKeys {
         val USER_ID = stringPreferencesKey("user_id")
@@ -46,10 +53,14 @@ class PreferencesRepository(private val context: Context) {
             } catch (e: Exception) {
                 emptyList()
             }
+            val languageCode = preferences[PreferencesKeys.LANGUAGE_CODE]
+                ?: sharedPrefs.getString("language_code", "en")
+                ?: "en"
+
             UserPreferences(
-                userId = preferences[PreferencesKeys.USER_ID] ?: UserPreferences.generateDefaultUserId(),
+                userId = preferences[PreferencesKeys.USER_ID] ?: "",
                 userName = preferences[PreferencesKeys.USER_NAME] ?: "User",
-                languageCode = preferences[PreferencesKeys.LANGUAGE_CODE] ?: "en",
+                languageCode = languageCode,
                 isDarkTheme = preferences[PreferencesKeys.IS_DARK_THEME] ?: false,
                 lastMapLatitude = preferences[PreferencesKeys.LAST_MAP_LATITUDE] ?: 49.1951,
                 lastMapLongitude = preferences[PreferencesKeys.LAST_MAP_LONGITUDE] ?: 16.6068,
@@ -74,6 +85,7 @@ class PreferencesRepository(private val context: Context) {
             preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = userPreferences.notificationsEnabled
             preferences[PreferencesKeys.LAST_SYNC_TIMESTAMP] = userPreferences.lastSyncTimestamp
         }
+        sharedPrefs.edit().putString("language_code", userPreferences.languageCode).apply()
     }
 
     suspend fun updateUserId(userId: String) {
@@ -92,6 +104,7 @@ class PreferencesRepository(private val context: Context) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.LANGUAGE_CODE] = languageCode
         }
+        sharedPrefs.edit().putString("language_code", languageCode).apply()
     }
 
     suspend fun toggleTheme(isDark: Boolean) {
@@ -130,17 +143,21 @@ class PreferencesRepository(private val context: Context) {
         dataStore.edit { preferences ->
             preferences.clear()
         }
+        sharedPrefs.edit().clear().apply()
     }
+
     suspend fun updateTheme(isDark: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_DARK_THEME] = isDark
         }
     }
+
     suspend fun updateNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
         }
     }
+
     suspend fun updateSearchHistory(history: List<String>) {
         context.dataStore.edit { preferences ->
             val json = Json.encodeToString(history)
@@ -150,7 +167,7 @@ class PreferencesRepository(private val context: Context) {
 
     suspend fun getUserId(): String {
         val preferences = dataStore.data.map { it[PreferencesKeys.USER_ID] }
-        return preferences.catch { emit(null) }.map { it ?: UserPreferences.generateDefaultUserId() }
+        return preferences.catch { emit(null) }.map { it ?: "" }
             .let { flow ->
                 var result = ""
                 flow.collect { result = it }
@@ -167,6 +184,16 @@ class PreferencesRepository(private val context: Context) {
             }
         }
         .map { preferences ->
-            preferences[PreferencesKeys.USER_ID] ?: UserPreferences.generateDefaultUserId()
+            val existingId = preferences[PreferencesKeys.USER_ID]
+            if (existingId != null) {
+                existingId
+            } else {
+                val newId = UserPreferences.generateDefaultUserId()
+                dataStore.edit { it[PreferencesKeys.USER_ID] = newId }
+                newId
+            }
         }
+    fun getCurrentLanguage(): String {
+        return sharedPrefs.getString("language_code", "en") ?: "en"
+    }
 }

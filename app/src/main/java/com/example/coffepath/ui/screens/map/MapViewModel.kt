@@ -1,10 +1,13 @@
 package com.example.coffepath.ui.screens.map
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coffepath.model.*
 import com.example.coffepath.repository.ICafeRepository
 import com.example.coffepath.repository.IReviewRepository
+import com.example.coffepath.repository.IUserProfileRepository
+import com.example.coffepath.repository.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,7 +17,9 @@ import javax.inject.Inject
 @HiltViewModel
 class MainMapViewModel @Inject constructor(
     private val cafeRepository: ICafeRepository,
-    private val reviewRepository: IReviewRepository
+    private val reviewRepository: IReviewRepository,
+    private val userProfileRepository: IUserProfileRepository,
+    private val preferencesRepository: PreferencesRepository
 ) : ViewModel(), MapActions {
 
     private val _uiState = MutableStateFlow<MainMapUIState>(MainMapUIState.Loading)
@@ -135,7 +140,21 @@ class MainMapViewModel @Inject constructor(
 
     override fun toggleFavorite(cafeId: Long, currentStatus: Boolean) {
         viewModelScope.launch {
-            cafeRepository.updateFavoriteStatus(cafeId, !currentStatus)
+            try {
+                val newStatus = !currentStatus
+
+                cafeRepository.updateFavoriteStatus(cafeId, newStatus)
+                val userId = preferencesRepository.userIdFlow.first()
+                if (newStatus) {
+                    Log.d("MapViewModel", "Incrementing favorites count for user: $userId")
+                    userProfileRepository.incrementFavoritesCount(userId)
+                } else {
+                    Log.d("MapViewModel", "Decrementing favorites count for user: $userId")
+                    userProfileRepository.decrementFavoritesCount(userId)
+                }
+            } catch (e: Exception) {
+                Log.e("MapViewModel", "Error toggling favorite", e)
+            }
         }
     }
 
@@ -203,7 +222,6 @@ class MainMapViewModel @Inject constructor(
         if (openingHours.contains("24/7", ignoreCase = true)) {
             return true
         }
-
 
         return null
     }

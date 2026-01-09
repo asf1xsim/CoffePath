@@ -39,27 +39,52 @@ fun PhotoPicker(
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var showPermissionRationale by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        uri?.let { onImageSelected(it) }
+        uri?.let { tempUri ->
+            // Копируем изображение в постоянное хранилище приложения
+            try {
+                val bitmap = PhotoUtils.loadBitmapFromUri(context, tempUri, 1024, 1024)
+                bitmap?.let {
+                    val correctedBitmap = PhotoUtils.correctImageOrientation(context, tempUri, it)
+                    val compressedBitmap = PhotoUtils.compressBitmap(correctedBitmap, 800, 800)
+                    val permanentUri = PhotoUtils.saveBitmapToFile(
+                        context,
+                        compressedBitmap,
+                        "profile_${System.currentTimeMillis()}"
+                    )
+                    permanentUri?.let { savedUri ->
+                        onImageSelected(savedUri)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-
+            tempCameraUri?.let { uri ->
+                // Фото уже сохранено через PhotoUtils.createImageUri
+                onImageSelected(uri)
+            }
         }
     }
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val allGranted = permissions.values.all { it }
         if (allGranted) {
-            val uri = PhotoUtils.createImageUri(context)
+            val uri = PhotoUtils.createImageUri(context, "profile_camera_${System.currentTimeMillis()}.jpg")
             uri?.let {
+                tempCameraUri = it
                 onImageSelected(it)
                 cameraLauncher.launch(it)
             }
@@ -67,6 +92,7 @@ fun PhotoPicker(
             showPermissionRationale = true
         }
     }
+
     val galleryPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -142,6 +168,7 @@ fun PhotoPicker(
             }
         }
     }
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -155,8 +182,12 @@ fun PhotoPicker(
                         onClick = {
                             showDialog = false
                             if (PermissionUtils.hasCameraPermissions(context)) {
-                                val uri = PhotoUtils.createImageUri(context)
+                                val uri = PhotoUtils.createImageUri(
+                                    context,
+                                    "profile_camera_${System.currentTimeMillis()}.jpg"
+                                )
                                 uri?.let {
+                                    tempCameraUri = it
                                     onImageSelected(it)
                                     cameraLauncher.launch(it)
                                 }
@@ -174,6 +205,7 @@ fun PhotoPicker(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Take photo")
                     }
+
                     OutlinedButton(
                         onClick = {
                             showDialog = false
@@ -205,6 +237,7 @@ fun PhotoPicker(
             }
         )
     }
+
     if (showPermissionRationale) {
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
@@ -223,6 +256,7 @@ fun PhotoPicker(
         )
     }
 }
+
 @Composable
 fun AddPhotoButton(
     onClick: () -> Unit,

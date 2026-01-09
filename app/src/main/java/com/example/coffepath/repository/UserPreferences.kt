@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserPreferences(
-    val userId: String = generateDefaultUserId(),
+    // ИСПРАВЛЕНИЕ: userId не должен генерироваться каждый раз
+    // Он будет задан PreferencesRepository
+    val userId: String = "",
     val userName: String = "User",
     val languageCode: String = "en",
     val isDarkTheme: Boolean = false,
@@ -22,7 +24,7 @@ data class UserPreferences(
         }
 
         fun default(): UserPreferences {
-            return UserPreferences()
+            return UserPreferences(userId = generateDefaultUserId())
         }
     }
 

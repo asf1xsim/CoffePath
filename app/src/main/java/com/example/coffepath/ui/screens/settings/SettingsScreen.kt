@@ -9,10 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.coffepath.R
 import com.example.coffepath.navigation.INavigationRouter
-
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,30 +26,50 @@ fun SettingsScreen(
     val preferences by viewModel.userPreferences.collectAsState()
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.snackbarMessage.collect { message ->
+            if (message.contains("Language changed")) {
+                delay(100)
+                (context as? android.app.Activity)?.recreate()
+            } else {
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = { navigation.returnBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            SettingsSectionHeader("Appearance")
+            SettingsSectionHeader(stringResource(R.string.appearance))
 
             SettingsItem(
                 icon = Icons.Default.DarkMode,
-                title = "Dark Theme",
-                subtitle = if (preferences.isDarkTheme) "Enabled" else "Disabled",
+                title = stringResource(R.string.dark_theme),
+                subtitle = stringResource(
+                    if (preferences.isDarkTheme) R.string.enabled else R.string.disabled
+                ),
                 trailing = {
                     Switch(
                         checked = preferences.isDarkTheme,
@@ -57,26 +80,25 @@ fun SettingsScreen(
 
             Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            SettingsSectionHeader("Language")
+            SettingsSectionHeader(stringResource(R.string.language))
 
             SettingsItem(
                 icon = Icons.Default.Language,
-                title = "App Language",
-                subtitle = when (preferences.languageCode) {
-                    "cs" -> "Čeština"
-                    else -> "English"
-                },
+                title = stringResource(R.string.app_language),
+                subtitle = viewModel.getLanguageDisplayName(preferences.languageCode),
                 onClick = { showLanguageDialog = true }
             )
 
             Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            SettingsSectionHeader("Notifications")
+            SettingsSectionHeader(stringResource(R.string.notifications))
 
             SettingsItem(
                 icon = Icons.Default.Notifications,
-                title = "Push Notifications",
-                subtitle = if (preferences.notificationsEnabled) "Enabled" else "Disabled",
+                title = stringResource(R.string.push_notifications),
+                subtitle = stringResource(
+                    if (preferences.notificationsEnabled) R.string.enabled else R.string.disabled
+                ),
                 trailing = {
                     Switch(
                         checked = preferences.notificationsEnabled,
@@ -87,18 +109,18 @@ fun SettingsScreen(
 
             Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            SettingsSectionHeader("About")
+            SettingsSectionHeader(stringResource(R.string.about))
 
             SettingsItem(
                 icon = Icons.Default.Info,
-                title = "App Version",
+                title = stringResource(R.string.app_version),
                 subtitle = "1.0.0"
             )
 
             SettingsItem(
                 icon = Icons.Default.RestartAlt,
-                title = "Reset Settings",
-                subtitle = "Reset all settings to default",
+                title = stringResource(R.string.reset_settings),
+                subtitle = stringResource(R.string.reset_settings_subtitle),
                 onClick = { showResetDialog = true }
             )
         }
@@ -107,7 +129,7 @@ fun SettingsScreen(
     if (showLanguageDialog) {
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
-            title = { Text("Select Language") },
+            title = { Text(stringResource(R.string.select_language)) },
             text = {
                 Column {
                     viewModel.getAvailableLanguages().forEach { (code, name) ->
@@ -126,7 +148,7 @@ fun SettingsScreen(
                             if (preferences.languageCode == code) {
                                 Icon(
                                     Icons.Default.Check,
-                                    contentDescription = "Selected",
+                                    contentDescription = stringResource(R.string.selected),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -137,7 +159,7 @@ fun SettingsScreen(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showLanguageDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -146,8 +168,8 @@ fun SettingsScreen(
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset Settings") },
-            text = { Text("Are you sure you want to reset all settings to default values?") },
+            title = { Text(stringResource(R.string.reset_settings)) },
+            text = { Text(stringResource(R.string.reset_settings_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -155,12 +177,12 @@ fun SettingsScreen(
                         showResetDialog = false
                     }
                 ) {
-                    Text("Reset")
+                    Text(stringResource(R.string.reset))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

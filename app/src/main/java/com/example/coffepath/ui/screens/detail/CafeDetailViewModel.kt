@@ -1,14 +1,18 @@
 package com.example.coffepath.ui.screens.detail
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coffepath.repository.ICafeRepository
 import com.example.coffepath.repository.IReviewRepository
+import com.example.coffepath.repository.IUserProfileRepository
+import com.example.coffepath.repository.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,7 +20,9 @@ import javax.inject.Inject
 class CafeDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val cafeRepository: ICafeRepository,
-    private val reviewRepository: IReviewRepository
+    private val reviewRepository: IReviewRepository,
+    private val userProfileRepository: IUserProfileRepository,
+    private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
     private val cafeId: Long = savedStateHandle.get<Long>("cafeId") ?: -1L
@@ -51,8 +57,24 @@ class CafeDetailViewModel @Inject constructor(
 
     fun toggleFavorite(currentStatus: Boolean) {
         viewModelScope.launch {
-            cafeRepository.updateFavoriteStatus(cafeId, !currentStatus)
-            loadCafeDetails()
+            try {
+                val newStatus = !currentStatus
+
+                cafeRepository.updateFavoriteStatus(cafeId, newStatus)
+
+                val userId = preferencesRepository.userIdFlow.first()
+                if (newStatus) {
+                    Log.d("CafeDetailViewModel", "Incrementing favorites count for user: $userId")
+                    userProfileRepository.incrementFavoritesCount(userId)
+                } else {
+                    Log.d("CafeDetailViewModel", "Decrementing favorites count for user: $userId")
+                    userProfileRepository.decrementFavoritesCount(userId)
+                }
+
+                loadCafeDetails()
+            } catch (e: Exception) {
+                Log.e("CafeDetailViewModel", "Error toggling favorite", e)
+            }
         }
     }
 }
