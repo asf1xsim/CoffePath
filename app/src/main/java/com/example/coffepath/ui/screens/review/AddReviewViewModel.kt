@@ -15,21 +15,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class AddReviewUIState(
-    val cafeName: String = "",
-    val rating: Float = 0f,
-    val comment: String = "",
-    val photoUri: Uri? = null,
-    val detectedDrinkType: DrinkType? = null,
-    val isClassifying: Boolean = false,
-    val isSaving: Boolean = false,
-    val error: String? = null,
-    val isSuccess: Boolean = false
-) {
-    val isValid: Boolean
-        get() = rating > 0 && comment.isNotBlank()
-}
-
 @HiltViewModel
 class AddReviewViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

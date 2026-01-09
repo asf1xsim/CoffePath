@@ -2,21 +2,19 @@ package com.example.coffepath.ui.screens.map
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.coffepath.model.Cafe
+import com.example.coffepath.model.CafeMapItem
 import com.example.coffepath.navigation.INavigationRouter
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import com.google.maps.android.compose.clustering.Clustering
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,68 +26,132 @@ fun MapScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("CoffeePath") },
-                actions = {
-                    IconButton(onClick = { navigation.navigateToMLKitTest() }) {
-                        Icon(Icons.Default.Science, contentDescription = "Test ML Kit")
-                    }
-                    IconButton(onClick = { navigation.navigateToSearch() }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick = { navigation.navigateToFavorites() }) {
-                        Icon(Icons.Default.Favorite, contentDescription = "Favorites")
-                    }
-                    IconButton(onClick = { navigation.navigateToProfile() }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
-                    }
-                }
+            MapTopAppBar(
+                navigation = navigation,
+                hasActiveFilters = (uiState as? MainMapUIState.Success)?.hasActiveFilters ?: false,
+                filterCount = (uiState as? MainMapUIState.Success)?.filter?.getActiveFiltersCount() ?: 0,
+                onFilterClick = { viewModel.toggleFilterSheet() }
             )
+        },
+        floatingActionButton = {
+            val successState = uiState as? MainMapUIState.Success
+            if (successState != null && successState.filteredItems.isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = { viewModel.toggleClustering() }
+                ) {
+                    Icon(
+                        if (successState.mapSettings.enableClustering) {
+                            Icons.Default.GridOn
+                        } else {
+                            Icons.Default.GridOff
+                        },
+                        contentDescription = "Toggle Clustering"
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         when (val state = uiState) {
             is MainMapUIState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingMapState(paddingValues)
             }
+
             is MainMapUIState.Success -> {
-                MainMapContent(
+                MapContent(
                     modifier = Modifier.padding(paddingValues),
-                    cafes = state.cafes,
+                    cafeItems = state.filteredItems,
+                    enableClustering = state.mapSettings.enableClustering,
                     isLoading = state.isLoading,
                     error = state.error,
-                    actions = viewModel,
-                    navigation = navigation
+                    onLoadCafes = { south, west, north, east ->
+                        viewModel.loadCafesInArea(south, west, north, east)
+                    },
+                    onCafeClick = { cafeId ->
+                        navigation.navigateToCafeDetail(cafeId)
+                    },
+                    onToggleFavorite = { cafeId, isFavorite ->
+                        viewModel.toggleFavorite(cafeId, isFavorite)
+                    }
                 )
-            }
-            is MainMapUIState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Error: ${state.message}")
+
+                if (state.showFilterSheet) {
+                    MapFilterBottomSheet(
+                        filter = state.filter,
+                        onFilterUpdate = { viewModel.updateFilter(it) },
+                        onDismiss = { viewModel.toggleFilterSheet() },
+                        onClearFilters = { viewModel.clearFilters() }
+                    )
                 }
+            }
+
+            is MainMapUIState.Error -> {
+                ErrorMapState(paddingValues, state.message)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainMapContent(
+fun MapTopAppBar(
+    navigation: INavigationRouter,
+    hasActiveFilters: Boolean,
+    filterCount: Int,
+    onFilterClick: () -> Unit
+) {
+    TopAppBar(
+        title = { Text("CoffeePath") },
+        actions = {
+            BadgedBox(
+                badge = {
+                    if (hasActiveFilters) {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ) {
+                            Text("$filterCount")
+                        }
+                    }
+                }
+            ) {
+                IconButton(onClick = onFilterClick) {
+                    Icon(
+                        Icons.Default.FilterList,
+                        contentDescription = "Filters",
+                        tint = if (hasActiveFilters) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    )
+                }
+            }
+
+            IconButton(onClick = { navigation.navigateToSearch() }) {
+                Icon(Icons.Default.Search, contentDescription = "Search")
+            }
+
+            IconButton(onClick = { navigation.navigateToFavorites() }) {
+                Icon(Icons.Default.Favorite, contentDescription = "Favorites")
+            }
+
+            IconButton(onClick = { navigation.navigateToProfile() }) {
+                Icon(Icons.Default.Person, contentDescription = "Profile")
+            }
+        }
+    )
+}
+
+@Composable
+fun MapContent(
     modifier: Modifier = Modifier,
-    cafes: List<Cafe>,
+    cafeItems: List<CafeMapItem>,
+    enableClustering: Boolean,
     isLoading: Boolean,
     error: String?,
-    actions: MapActions,
-    navigation: INavigationRouter
+    onLoadCafes: (Double, Double, Double, Double) -> Unit,
+    onCafeClick: (Long) -> Unit,
+    onToggleFavorite: (Long, Boolean) -> Unit
 ) {
     val defaultPosition = LatLng(49.1951, 16.6068)
     val cameraPositionState = rememberCameraPositionState {
@@ -107,19 +169,31 @@ fun MainMapContent(
             ),
             uiSettings = MapUiSettings(
                 zoomControlsEnabled = true,
-                myLocationButtonEnabled = false
+                myLocationButtonEnabled = false,
+                compassEnabled = true,
+                mapToolbarEnabled = false
             )
         ) {
-            cafes.forEach { cafe ->
-                Marker(
-                    state = MarkerState(position = cafe.position),
-                    title = cafe.title,
-                    snippet = cafe.snippet,
-                    onClick = {
-                        navigation.navigateToCafeDetail(cafe.id)
+            if (enableClustering) {
+                Clustering(
+                    items = cafeItems,
+                    onClusterItemClick = { item ->
+                        onCafeClick(item.cafe.id)
                         true
                     }
                 )
+            } else {
+                cafeItems.forEach { item ->
+                    Marker(
+                        state = MarkerState(position = item.position),
+                        title = item.title,
+                        snippet = item.snippet,
+                        onClick = {
+                            onCafeClick(item.cafe.id)
+                            true
+                        }
+                    )
+                }
             }
         }
 
@@ -127,7 +201,7 @@ fun MainMapContent(
             onClick = {
                 val bounds = cameraPositionState.projection?.visibleRegion?.latLngBounds
                 if (bounds != null) {
-                    actions.loadCafesInArea(
+                    onLoadCafes(
                         bounds.southwest.latitude,
                         bounds.southwest.longitude,
                         bounds.northeast.latitude,
@@ -144,10 +218,19 @@ fun MainMapContent(
         }
 
         if (isLoading) {
-            CircularProgressIndicator(
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+            )
+        }
+
+        if (cafeItems.isNotEmpty()) {
+            MapInfoCard(
+                totalCafes = cafeItems.size,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 16.dp)
+                    .padding(top = if (isLoading) 8.dp else 16.dp)
             )
         }
 
@@ -155,10 +238,96 @@ fun MainMapContent(
             Snackbar(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                action = {
+                    TextButton(onClick = { /* Clear error */ }) {
+                        Text("Dismiss")
+                    }
+                }
             ) {
                 Text(text = it)
             }
+        }
+    }
+}
+
+@Composable
+fun MapInfoCard(
+    totalCafes: Int,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Place,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = "$totalCafes ${if (totalCafes == 1) "cafe" else "cafes"} on map",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+    }
+}
+
+@Composable
+fun LoadingMapState(paddingValues: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            CircularProgressIndicator()
+            Text("Loading map...")
+        }
+    }
+}
+
+@Composable
+fun ErrorMapState(paddingValues: PaddingValues, message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                Icons.Default.ErrorOutline,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = "Error loading map",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

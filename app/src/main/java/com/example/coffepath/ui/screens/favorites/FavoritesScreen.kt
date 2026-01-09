@@ -26,19 +26,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-@HiltViewModel
-class FavoritesViewModel @Inject constructor(
-    private val repository: ICafeRepository
-) : ViewModel() {
-
-    val favoriteCafes: StateFlow<List<Cafe>> = repository.getFavoriteCafes()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(

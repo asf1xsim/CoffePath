@@ -2,19 +2,19 @@ package com.example.coffepath.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coffepath.model.Cafe
-import com.example.coffepath.model.OverpassElement
+import com.example.coffepath.model.*
 import com.example.coffepath.repository.ICafeRepository
+import com.example.coffepath.repository.IReviewRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class MainMapViewModel @Inject constructor(
-    private val repository: ICafeRepository
+    private val cafeRepository: ICafeRepository,
+    private val reviewRepository: IReviewRepository
 ) : ViewModel(), MapActions {
 
     private val _uiState = MutableStateFlow<MainMapUIState>(MainMapUIState.Loading)
@@ -26,8 +26,36 @@ class MainMapViewModel @Inject constructor(
 
     private fun observeCafes() {
         viewModelScope.launch {
-            repository.getAllCafes().collect { cafes ->
-                _uiState.value = MainMapUIState.Success(cafes)
+            combine(
+                cafeRepository.getAllCafes(),
+                reviewRepository.getAllReviews()
+            ) { cafes, _ ->
+                cafes.map { cafe ->
+                    val averageRating = reviewRepository.getAverageRatingForCafe(cafe.id)
+                    val reviewsCount = reviewRepository.getReviewCountForCafe(cafe.id)
+                    val isOpen = parseOpeningHours(cafe.openingHours)
+
+                    CafeMapItem(
+                        cafe = cafe,
+                        averageRating = averageRating,
+                        reviewsCount = reviewsCount,
+                        isOpen = isOpen
+                    )
+                }
+            }.collect { cafeItems ->
+                val currentState = _uiState.value
+                if (currentState is MainMapUIState.Success) {
+                    val filteredItems = applyFilters(cafeItems, currentState.filter)
+                    _uiState.value = currentState.copy(
+                        cafeItems = cafeItems,
+                        filteredItems = filteredItems
+                    )
+                } else {
+                    _uiState.value = MainMapUIState.Success(
+                        cafeItems = cafeItems,
+                        filteredItems = cafeItems
+                    )
+                }
             }
         }
     }
@@ -39,13 +67,13 @@ class MainMapViewModel @Inject constructor(
                 _uiState.value = currentState.copy(isLoading = true, error = null)
             }
 
-            val result = repository.fetchCafesFromApi(south, west, north, east)
+            val result = cafeRepository.fetchCafesFromApi(south, west, north, east)
 
             result.onSuccess { response ->
                 val cafes = response.elements.mapNotNull { element ->
                     convertToCafe(element)
                 }
-                repository.insertCafes(cafes)
+                cafeRepository.insertCafes(cafes)
             }.onFailure { exception ->
                 val currentState = _uiState.value
                 if (currentState is MainMapUIState.Success) {
@@ -102,12 +130,81 @@ class MainMapViewModel @Inject constructor(
     }
 
     override fun onCafeClicked(cafeId: Long) {
-        // Navigation will be handled in the UI layer
+
     }
 
     override fun toggleFavorite(cafeId: Long, currentStatus: Boolean) {
         viewModelScope.launch {
-            repository.updateFavoriteStatus(cafeId, !currentStatus)
+            cafeRepository.updateFavoriteStatus(cafeId, !currentStatus)
         }
+    }
+
+    fun updateFilter(filter: MapFilterState) {
+        val currentState = _uiState.value
+        if (currentState is MainMapUIState.Success) {
+            val filteredItems = applyFilters(currentState.cafeItems, filter)
+            _uiState.value = currentState.copy(
+                filter = filter,
+                filteredItems = filteredItems
+            )
+        }
+    }
+
+    fun clearFilters() {
+        updateFilter(MapFilterState())
+    }
+
+    private fun applyFilters(items: List<CafeMapItem>, filter: MapFilterState): List<CafeMapItem> {
+        if (!filter.hasActiveFilters()) {
+            return items
+        }
+
+        return items.filter { it.matchesFilter(filter) }
+    }
+
+    fun toggleFilterSheet() {
+        val currentState = _uiState.value
+        if (currentState is MainMapUIState.Success) {
+            _uiState.value = currentState.copy(
+                showFilterSheet = !currentState.showFilterSheet
+            )
+        }
+    }
+
+    fun updateMapSettings(settings: MapSettings) {
+        val currentState = _uiState.value
+        if (currentState is MainMapUIState.Success) {
+            _uiState.value = currentState.copy(mapSettings = settings)
+        }
+    }
+
+    fun toggleClustering() {
+        val currentState = _uiState.value
+        if (currentState is MainMapUIState.Success) {
+            val newSettings = currentState.mapSettings.copy(
+                enableClustering = !currentState.mapSettings.enableClustering
+            )
+            _uiState.value = currentState.copy(mapSettings = newSettings)
+        }
+    }
+
+    fun clearError() {
+        val currentState = _uiState.value
+        if (currentState is MainMapUIState.Success) {
+            _uiState.value = currentState.copy(error = null)
+        }
+    }
+
+    private fun parseOpeningHours(openingHours: String?): Boolean? {
+        if (openingHours.isNullOrBlank()) {
+            return null
+        }
+
+        if (openingHours.contains("24/7", ignoreCase = true)) {
+            return true
+        }
+
+
+        return null
     }
 }

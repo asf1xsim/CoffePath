@@ -33,62 +33,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class CafeDetailUIState {
-    object Loading : CafeDetailUIState()
-    data class Success(
-        val cafe: Cafe,
-        val reviews: List<Review>,
-        val averageRating: Float?,
-        val reviewCount: Int
-    ) : CafeDetailUIState()
-    object NotFound : CafeDetailUIState()
-}
-
-@HiltViewModel
-class CafeDetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val cafeRepository: ICafeRepository,
-    private val reviewRepository: IReviewRepository
-) : ViewModel() {
-
-    private val cafeId: Long = savedStateHandle.get<Long>("cafeId") ?: -1L
-
-    private val _uiState = MutableStateFlow<CafeDetailUIState>(CafeDetailUIState.Loading)
-    val uiState: StateFlow<CafeDetailUIState> = _uiState.asStateFlow()
-
-    init {
-        loadCafeDetails()
-    }
-
-    private fun loadCafeDetails() {
-        viewModelScope.launch {
-            val cafe = cafeRepository.getCafeById(cafeId)
-            if (cafe != null) {
-                reviewRepository.getReviewsForCafe(cafeId).collect { reviews ->
-                    val averageRating = reviewRepository.getAverageRatingForCafe(cafeId)
-                    val reviewCount = reviewRepository.getReviewCountForCafe(cafeId)
-
-                    _uiState.value = CafeDetailUIState.Success(
-                        cafe = cafe,
-                        reviews = reviews,
-                        averageRating = averageRating,
-                        reviewCount = reviewCount
-                    )
-                }
-            } else {
-                _uiState.value = CafeDetailUIState.NotFound
-            }
-        }
-    }
-
-    fun toggleFavorite(currentStatus: Boolean) {
-        viewModelScope.launch {
-            cafeRepository.updateFavoriteStatus(cafeId, !currentStatus)
-            loadCafeDetails()
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CafeDetailScreen(

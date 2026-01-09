@@ -13,15 +13,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ProfileUIState(
-    val profile: UserProfile? = null,
-    val recentReviews: List<Review> = emptyList(),
-    val isLoading: Boolean = true,
-    val error: String? = null,
-    val isEditingName: Boolean = false,
-    val isEditingPhoto: Boolean = false
-)
-
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userProfileRepository: IUserProfileRepository,
