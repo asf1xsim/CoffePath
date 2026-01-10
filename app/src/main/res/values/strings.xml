@@ -89,6 +89,7 @@
     <string name="reclassify">Reclassify</string>
     <string name="remove">Remove</string>
     <string name="select_drink_manually">Select drink type manually</string>
+    <string name="select_drink_type">Select drink type</string>
     <string name="stars">%s stars</string>
 
     <!-- Reviews -->

@@ -89,6 +89,7 @@
     <string name="reclassify">Překlasifikovat</string>
     <string name="remove">Odstranit</string>
     <string name="select_drink_manually">Vybrat typ nápoje ručně</string>
+    <string name="select_drink_type">Vybrat typ nápoje</string>
     <string name="stars">%s hvězdiček</string>
 
     <!-- Reviews -->

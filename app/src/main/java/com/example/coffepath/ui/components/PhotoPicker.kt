@@ -83,7 +83,6 @@ fun PhotoPicker(
             val uri = PhotoUtils.createImageUri(context, "profile_camera_${System.currentTimeMillis()}.jpg")
             uri?.let {
                 tempCameraUri = it
-                onImageSelected(it)
                 cameraLauncher.launch(it)
             }
         } else {
@@ -186,7 +185,6 @@ fun PhotoPicker(
                                 )
                                 uri?.let {
                                     tempCameraUri = it
-                                    onImageSelected(it)
                                     cameraLauncher.launch(it)
                                 }
                             } else {

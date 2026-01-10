@@ -18,6 +18,7 @@ import com.example.coffepath.R
 import com.example.coffepath.mlkit.model.DrinkType
 import com.example.coffepath.navigation.INavigationRouter
 import com.example.coffepath.ui.components.PhotoPicker
+import com.example.coffepath.ui.screens.review.components.DrinkTypeSelectionDialog
 import com.example.coffepath.ui.screens.review.components.RatingBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +28,7 @@ fun AddReviewScreen(
     viewModel: AddReviewViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showDrinkTypeDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
@@ -37,7 +39,6 @@ fun AddReviewScreen(
 
     uiState.error?.let { error ->
         LaunchedEffect(error) {
-            // Error handling can be added here if needed
         }
     }
 
@@ -160,11 +161,20 @@ fun AddReviewScreen(
 
             if (uiState.detectedDrinkType == null && uiState.photoUri != null) {
                 OutlinedButton(
-                    onClick = { /* Show dialog for manual selection */ },
+                    onClick = { showDrinkTypeDialog = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(R.string.select_drink_manually))
                 }
+            }
+            if (showDrinkTypeDialog) {
+                DrinkTypeSelectionDialog(
+                    currentSelection = uiState.detectedDrinkType,
+                    onDismiss = { showDrinkTypeDialog = false },
+                    onSelect = { drinkType ->
+                        viewModel.setDrinkType(drinkType)
+                    }
+                )
             }
 
             Divider()

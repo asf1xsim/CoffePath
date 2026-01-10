@@ -38,7 +38,7 @@ fun FilterDialog(
                     value = localFilter.minRating ?: 0f,
                     onValueChange = { localFilter = localFilter.copy(minRating = if (it > 0) it else null) },
                     valueRange = 0f..5f,
-                    steps = 9
+                    steps = 4
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
