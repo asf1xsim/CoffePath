@@ -21,6 +21,5 @@ sealed class MainMapUIState {
         val hasActiveFilters: Boolean
             get() = filter.hasActiveFilters()
     }
-
     data class Error(val message: String) : MainMapUIState()
 }

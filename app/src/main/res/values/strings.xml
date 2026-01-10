@@ -56,6 +56,12 @@
     <string name="open_now">Open Now</string>
     <string name="max_distance">Maximum Distance</string>
     <string name="max_distance_km">Maximum Distance: %s km</string>
+    <string name="apply_filters">Apply Filters</string>
+
+    <!-- Filter hints/subtitles -->
+    <string name="show_favorites_only_hint">Show only cafes marked as favorite</string>
+    <string name="show_with_reviews_hint">Show only cafes with reviews</string>
+    <string name="show_open_now_hint">Show only cafes open right now</string>
 
     <!-- Sort Options -->
     <string name="sort_name_asc">Name (A-Z)</string>
@@ -155,6 +161,16 @@
     <string name="error_update_name">Failed to update name: %s</string>
     <string name="error_update_photo">Failed to update photo: %s</string>
     <string name="error_search_failed">Search failed: %s</string>
+
+    <string name="loading_map">Loading map...</string>
+    <string name="error_loading_map">Error loading map</string>
+    <string name="toggle_clustering">Toggle Clustering</string>
+
+    <plurals name="cafes_on_map_plural">
+        <item quantity="one">%d cafe on map</item>
+        <item quantity="few">%d cafes on map</item>
+        <item quantity="other">%d cafes on map</item>
+    </plurals>
 
     <!-- Common -->
     <string name="ok">OK</string>

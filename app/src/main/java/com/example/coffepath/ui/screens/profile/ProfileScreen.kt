@@ -17,15 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.coffepath.R
 import com.example.coffepath.model.Review
 import com.example.coffepath.navigation.INavigationRouter
 import com.example.coffepath.ui.components.PhotoPicker
-import java.text.SimpleDateFormat
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,15 +39,21 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
+                title = { Text(stringResource(R.string.profile)) },
                 navigationIcon = {
                     IconButton(onClick = { navigation.returnBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { navigation.navigateToSettings() }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings)
+                        )
                     }
                 }
             )
@@ -88,7 +94,7 @@ fun ProfileScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = "Update Profile Photo",
+                                    text = stringResource(R.string.update_profile_photo),
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
@@ -109,7 +115,7 @@ fun ProfileScreen(
                                     onClick = { viewModel.togglePhotoEditing() },
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Done")
+                                    Text(stringResource(R.string.done))
                                 }
                             }
                         }
@@ -145,7 +151,10 @@ fun ProfileScreen(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    text = "Member since ${profile.getFormattedCreatedDate()}",
+                                    text = stringResource(
+                                        R.string.member_since,
+                                        profile.getFormattedCreatedDate()
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -160,7 +169,7 @@ fun ProfileScreen(
 
                 item {
                     Text(
-                        text = "Recent Reviews",
+                        text = stringResource(R.string.recent_reviews),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -188,12 +197,12 @@ fun ProfileScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "No reviews yet",
+                                    text = stringResource(R.string.no_reviews_profile),
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Start reviewing cafes!",
+                                    text = stringResource(R.string.start_reviewing),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -222,17 +231,18 @@ fun ProfileScreen(
             }
         }
     }
+
     if (showNameDialog) {
         var newName by remember { mutableStateOf(uiState.profile?.name ?: "") }
 
         AlertDialog(
             onDismissRequest = { showNameDialog = false },
-            title = { Text("Edit Name") },
+            title = { Text(stringResource(R.string.edit_name)) },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.name)) },
                     singleLine = true
                 )
             },
@@ -243,12 +253,12 @@ fun ProfileScreen(
                         showNameDialog = false
                     }
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showNameDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -278,7 +288,7 @@ fun ProfileHeader(
                 if (profile?.photoUri != null) {
                     Image(
                         painter = rememberAsyncImagePainter(profile.photoUri),
-                        contentDescription = "Profile photo",
+                        contentDescription = stringResource(R.string.edit_photo),
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape),
@@ -306,7 +316,7 @@ fun ProfileHeader(
                 ) {
                     Icon(
                         Icons.Default.Edit,
-                        contentDescription = "Edit photo",
+                        contentDescription = stringResource(R.string.edit_photo),
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -317,7 +327,7 @@ fun ProfileHeader(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = profile?.name ?: "User",
+                    text = profile?.name ?: stringResource(R.string.profile),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -327,7 +337,7 @@ fun ProfileHeader(
                 ) {
                     Icon(
                         Icons.Default.Edit,
-                        contentDescription = "Edit name",
+                        contentDescription = stringResource(R.string.edit_name),
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -362,7 +372,7 @@ fun StatisticsSection(
             StatisticItem(
                 icon = Icons.Default.RateReview,
                 value = reviewsCount.toString(),
-                label = "Reviews"
+                label = stringResource(R.string.reviews)
             )
 
             VerticalDivider(modifier = Modifier.height(60.dp))
@@ -370,7 +380,7 @@ fun StatisticsSection(
             StatisticItem(
                 icon = Icons.Default.Favorite,
                 value = favoritesCount.toString(),
-                label = "Favorites"
+                label = stringResource(R.string.favorites)
             )
 
             VerticalDivider(modifier = Modifier.height(60.dp))
@@ -378,7 +388,7 @@ fun StatisticsSection(
             StatisticItem(
                 icon = Icons.Default.Place,
                 value = visitedCafesCount.toString(),
-                label = "Visited"
+                label = stringResource(R.string.visited)
             )
         }
     }
@@ -431,7 +441,7 @@ fun ReviewListItem(
             if (review.photoUri != null) {
                 Image(
                     painter = rememberAsyncImagePainter(review.photoUri),
-                    contentDescription = "Review photo",
+                    contentDescription = stringResource(R.string.edit_photo),
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(8.dp)),

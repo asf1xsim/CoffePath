@@ -18,9 +18,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coffepath.model.*
 import com.example.coffepath.navigation.INavigationRouter
 
-/**
- * Экран поиска кафе
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
@@ -45,7 +42,6 @@ fun SearchScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Фильтры и сортировка
             SearchControls(
                 filter = uiState.filter,
                 sortOption = uiState.sortOption,
@@ -53,7 +49,6 @@ fun SearchScreen(
                 onSortClick = { /* Show sort dialog */ }
             )
 
-            // Основной контент
             when {
                 uiState.isLoading -> {
                     LoadingState()
@@ -86,7 +81,6 @@ fun SearchScreen(
         }
     }
 
-    // Диалог фильтров
     if (uiState.showFilters) {
         FilterDialog(
             filter = uiState.filter,
@@ -97,9 +91,6 @@ fun SearchScreen(
     }
 }
 
-/**
- * Top App Bar с поисковой строкой
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTopAppBar(
@@ -140,9 +131,6 @@ fun SearchTopAppBar(
     )
 }
 
-/**
- * Контролы фильтров и сортировки
- */
 @Composable
 fun SearchControls(
     filter: CafeFilter,
@@ -156,7 +144,6 @@ fun SearchControls(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Кнопка фильтров
         FilterChip(
             selected = filter.hasActiveFilters(),
             onClick = onFilterClick,
@@ -177,26 +164,9 @@ fun SearchControls(
                 )
             }
         )
-
-        // Кнопка сортировки
-        FilterChip(
-            selected = sortOption != CafeSortOption.NAME_ASC,
-            onClick = onSortClick,
-            label = { Text("Sort") },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Sort,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        )
     }
 }
 
-/**
- * Список результатов поиска
- */
 @Composable
 fun SearchResultsList(
     results: List<SearchResult>,
@@ -225,9 +195,6 @@ fun SearchResultsList(
     }
 }
 
-/**
- * Карточка результата поиска
- */
 @Composable
 fun SearchResultCard(
     result: SearchResult,
@@ -244,14 +211,12 @@ fun SearchResultCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Название
             Text(
                 text = result.cafe.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
-            // Адрес
             result.cafe.address?.let { address ->
                 Text(
                     text = address,
@@ -260,12 +225,10 @@ fun SearchResultCard(
                 )
             }
 
-            // Рейтинг и рецензии
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Рейтинг
                 if (result.averageRating != null) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -284,7 +247,6 @@ fun SearchResultCard(
                     }
                 }
 
-                // Количество рецензий
                 if (result.reviewsCount > 0) {
                     Text(
                         text = "${result.reviewsCount} ${if (result.reviewsCount == 1) "review" else "reviews"}",
@@ -293,7 +255,6 @@ fun SearchResultCard(
                     )
                 }
 
-                // Избранное
                 if (result.cafe.isFavorite) {
                     Icon(
                         Icons.Default.Favorite,
@@ -307,9 +268,6 @@ fun SearchResultCard(
     }
 }
 
-/**
- * История поиска
- */
 @Composable
 fun SearchHistoryList(
     history: List<SearchHistory>,
@@ -318,7 +276,6 @@ fun SearchHistoryList(
     onClearHistory: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // Заголовок
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -337,7 +294,6 @@ fun SearchHistoryList(
             }
         }
 
-        // Список истории
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp)
@@ -389,9 +345,6 @@ fun SearchHistoryList(
     }
 }
 
-/**
- * Начальное состояние (пустой поиск)
- */
 @Composable
 fun InitialSearchState() {
     Box(
@@ -417,9 +370,6 @@ fun InitialSearchState() {
     }
 }
 
-/**
- * Пустое состояние (нет результатов)
- */
 @Composable
 fun EmptySearchState(query: String) {
     Box(
@@ -450,9 +400,6 @@ fun EmptySearchState(query: String) {
     }
 }
 
-/**
- * Состояние загрузки
- */
 @Composable
 fun LoadingState() {
     Box(
@@ -463,9 +410,6 @@ fun LoadingState() {
     }
 }
 
-/**
- * Диалог фильтров
- */
 @Composable
 fun FilterDialog(
     filter: CafeFilter,
@@ -480,7 +424,6 @@ fun FilterDialog(
         title = { Text("Filters") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Минимальный рейтинг
                 Text("Minimum Rating: ${localFilter.minRating?.let { String.format("%.1f", it) } ?: "Any"}")
                 Slider(
                     value = localFilter.minRating ?: 0f,
@@ -488,8 +431,6 @@ fun FilterDialog(
                     valueRange = 0f..5f,
                     steps = 9
                 )
-
-                // Только с рецензиями
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -502,7 +443,6 @@ fun FilterDialog(
                     )
                 }
 
-                // Только избранные
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

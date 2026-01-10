@@ -56,6 +56,12 @@
     <string name="open_now">Otevřeno nyní</string>
     <string name="max_distance">Maximální vzdálenost</string>
     <string name="max_distance_km">Maximální vzdálenost: %s km</string>
+    <string name="apply_filters">Použít filtry</string>
+
+    <!-- Filter hints/subtitles -->
+    <string name="show_favorites_only_hint">Zobrazit pouze oblíbené kavárny</string>
+    <string name="show_with_reviews_hint">Zobrazit pouze kavárny s recenzemi</string>
+    <string name="show_open_now_hint">Zobrazit pouze otevřené kavárny</string>
 
     <!-- Sort Options -->
     <string name="sort_name_asc">Název (A-Z)</string>
@@ -155,6 +161,16 @@
     <string name="error_update_name">Nepodařilo se aktualizovat jméno: %s</string>
     <string name="error_update_photo">Nepodařilo se aktualizovat fotku: %s</string>
     <string name="error_search_failed">Vyhledávání selhalo: %s</string>
+
+    <string name="loading_map">Načítání mapy...</string>
+    <string name="error_loading_map">Chyba při načítání mapy</string>
+    <string name="toggle_clustering">Přepnout shlukování</string>
+
+    <plurals name="cafes_on_map_plural">
+        <item quantity="one">%d kavárna na mapě</item>
+        <item quantity="few">%d kavárny na mapě</item>
+        <item quantity="other">%d kaváren na mapě</item>
+    </plurals>
 
     <!-- Common -->
     <string name="ok">OK</string>

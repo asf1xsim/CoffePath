@@ -13,8 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.coffepath.R
 import com.example.coffepath.mlkit.model.DrinkType
 import com.example.coffepath.navigation.INavigationRouter
 import com.example.coffepath.ui.components.PhotoPicker
@@ -36,17 +38,20 @@ fun AddReviewScreen(
 
     uiState.error?.let { error ->
         LaunchedEffect(error) {
-
+            // Error handling can be added here if needed
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Review") },
+                title = { Text(stringResource(R.string.add_review)) },
                 navigationIcon = {
                     IconButton(onClick = { navigation.returnBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -62,7 +67,7 @@ fun AddReviewScreen(
         ) {
             if (uiState.cafeName.isNotEmpty()) {
                 Text(
-                    text = "Review for ${uiState.cafeName}",
+                    text = stringResource(R.string.review_for, uiState.cafeName),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
@@ -98,7 +103,7 @@ fun AddReviewScreen(
                             modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp
                         )
-                        Text("Analyzing drink...")
+                        Text(stringResource(R.string.analyzing_drink))
                     }
                 }
             }
@@ -120,7 +125,7 @@ fun AddReviewScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Detected drink:",
+                                    text = stringResource(R.string.detected_drink),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 Text(
@@ -136,7 +141,7 @@ fun AddReviewScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Refresh,
-                                        contentDescription = "Reclassify"
+                                        contentDescription = stringResource(R.string.reclassify)
                                     )
                                 }
 
@@ -145,7 +150,7 @@ fun AddReviewScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Close,
-                                        contentDescription = "Remove"
+                                        contentDescription = stringResource(R.string.remove)
                                     )
                                 }
                             }
@@ -156,17 +161,17 @@ fun AddReviewScreen(
 
             if (uiState.detectedDrinkType == null && uiState.photoUri != null) {
                 OutlinedButton(
-                    onClick = { /* Показать диалог выбора */ },
+                    onClick = { /* Show dialog for manual selection */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Select drink type manually")
+                    Text(stringResource(R.string.select_drink_manually))
                 }
             }
 
             Divider()
 
             Text(
-                text = "Rating *",
+                text = stringResource(R.string.rating_required),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -178,7 +183,7 @@ fun AddReviewScreen(
 
             if (uiState.rating > 0) {
                 Text(
-                    text = "${uiState.rating} stars",
+                    text = stringResource(R.string.stars, uiState.rating.toInt().toString()),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -187,7 +192,7 @@ fun AddReviewScreen(
             Divider()
 
             Text(
-                text = "Comment *",
+                text = stringResource(R.string.comment_required),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -197,7 +202,7 @@ fun AddReviewScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp),
-                placeholder = { Text("Share your experience...") },
+                placeholder = { Text(stringResource(R.string.comment_hint)) },
                 maxLines = 6,
                 enabled = !uiState.isSaving
             )
@@ -226,7 +231,7 @@ fun AddReviewScreen(
                         IconButton(onClick = { viewModel.clearError() }) {
                             Icon(
                                 Icons.Default.Close,
-                                contentDescription = "Dismiss",
+                                contentDescription = stringResource(R.string.dismiss),
                                 tint = MaterialTheme.colorScheme.onErrorContainer
                             )
                         }
@@ -247,11 +252,15 @@ fun AddReviewScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text(if (uiState.isSaving) "Saving..." else "Submit Review")
+                Text(
+                    stringResource(
+                        if (uiState.isSaving) R.string.saving else R.string.submit_review
+                    )
+                )
             }
 
             Text(
-                text = "* Required fields",
+                text = stringResource(R.string.required_fields),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -280,7 +289,7 @@ fun RatingBar(
             ) {
                 Icon(
                     imageVector = if (i <= rating) Icons.Default.Star else Icons.Default.StarBorder,
-                    contentDescription = "Star $i",
+                    contentDescription = stringResource(R.string.rating),
                     tint = if (i <= rating) {
                         MaterialTheme.colorScheme.primary
                     } else {

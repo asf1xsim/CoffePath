@@ -1,10 +1,8 @@
 package com.example.coffepath.ui.screens.detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -12,26 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import coil.compose.rememberAsyncImagePainter
+import com.example.coffepath.R
 import com.example.coffepath.model.Cafe
 import com.example.coffepath.model.Review
 import com.example.coffepath.navigation.INavigationRouter
-import com.example.coffepath.repository.ICafeRepository
-import com.example.coffepath.repository.IReviewRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import com.example.coffepath.ui.screens.detail.components.DetailRow
+import com.example.coffepath.ui.screens.detail.components.ReviewCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,10 +32,13 @@ fun CafeDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cafe Details") },
+                title = { Text(stringResource(R.string.cafe_details)) },
                 navigationIcon = {
                     IconButton(onClick = { navigation.returnBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 },
                 actions = {
@@ -56,7 +47,7 @@ fun CafeDetailScreen(
                         IconButton(onClick = { viewModel.toggleFavorite(cafe.isFavorite) }) {
                             Icon(
                                 if (cafe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Toggle Favorite",
+                                contentDescription = stringResource(R.string.favorites),
                                 tint = if (cafe.isFavorite) {
                                     MaterialTheme.colorScheme.error
                                 } else {
@@ -74,7 +65,10 @@ fun CafeDetailScreen(
                 FloatingActionButton(
                     onClick = { navigation.navigateToAddReview(cafe.id) }
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Review")
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = stringResource(R.string.add_review)
+                    )
                 }
             }
         }
@@ -108,7 +102,7 @@ fun CafeDetailScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Cafe not found")
+                    Text(stringResource(R.string.cafe_not_found))
                 }
             }
         }
@@ -160,7 +154,7 @@ fun CafeDetailContent(
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
-                            text = "($reviewCount ${if (reviewCount == 1) "review" else "reviews"})",
+                            text = "($reviewCount ${if (reviewCount == 1) stringResource(R.string.review) else stringResource(R.string.reviews_plural)})",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -171,13 +165,13 @@ fun CafeDetailContent(
 
         cafe.address?.let { address ->
             item {
-                DetailRow(label = "Address", value = address)
+                DetailRow(label = stringResource(R.string.address), value = address)
             }
         }
 
         cafe.openingHours?.let { hours ->
             item {
-                DetailRow(label = "Opening Hours", value = hours)
+               DetailRow(label = stringResource(R.string.opening_hours), value = hours)
             }
         }
 
@@ -211,19 +205,19 @@ fun CafeDetailContent(
 
         item {
             DetailRow(
-                label = "Coordinates",
+                label = stringResource(R.string.coordinates),
                 value = "${cafe.latitude}, ${cafe.longitude}"
             )
         }
 
         item {
-            Divider()
+            HorizontalDivider()
         }
 
         item {
             Text(
-                text = "Reviews (${reviews.size})",
-                style = MaterialTheme.typography.titleLarge
+                text = stringResource(R.string.reviews_count, reviews.size),
+            style = MaterialTheme.typography.titleLarge
             )
         }
 
@@ -249,12 +243,12 @@ fun CafeDetailContent(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "No reviews yet",
+                            text = stringResource(R.string.no_reviews),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Be the first to review this cafe!",
+                            text = stringResource(R.string.be_first_review),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -273,92 +267,3 @@ fun CafeDetailContent(
     }
 }
 
-@Composable
-fun DetailRow(label: String, value: String) {
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
-@Composable
-fun ReviewCard(review: Review) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = if (index < review.rating) {
-                                Icons.Default.Star
-                            } else {
-                                Icons.Default.StarBorder
-                            },
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-
-                Text(
-                    text = review.getFormattedDate(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            review.drinkType?.let { drinkType ->
-                Surface(
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Text(
-                        text = drinkType,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-
-            Text(
-                text = review.comment,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            review.photoUri?.let { photoUri ->
-                Image(
-                    painter = rememberAsyncImagePainter(photoUri),
-                    contentDescription = "Review photo",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
-    }
-}

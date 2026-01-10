@@ -13,10 +13,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.coffepath.R
 import com.example.coffepath.model.Cafe
 import com.example.coffepath.navigation.INavigationRouter
 import com.example.coffepath.repository.ICafeRepository
@@ -37,10 +39,13 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorite Cafes") },
+                title = { Text(stringResource(R.string.favorite_cafes)) },
                 navigationIcon = {
                     IconButton(onClick = { navigation.returnBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -53,22 +58,24 @@ fun FavoritesScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     Icon(
                         Icons.Default.Favorite,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No favorite cafes yet",
+                        text = stringResource(R.string.no_favorites),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Add cafes to favorites from the map",
-                        style = MaterialTheme.typography.bodyMedium
+                        text = stringResource(R.string.add_favorites_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -124,7 +131,7 @@ fun CafeListItem(
             cafe.openingHours?.let { hours ->
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Hours: $hours",
+                    text = stringResource(R.string.hours_label, hours),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -7,8 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.coffepath.R
 import com.example.coffepath.model.CafeMapItem
 import com.example.coffepath.navigation.INavigationRouter
 import com.google.android.gms.maps.model.CameraPosition
@@ -32,23 +35,6 @@ fun MapScreen(
                 filterCount = (uiState as? MainMapUIState.Success)?.filter?.getActiveFiltersCount() ?: 0,
                 onFilterClick = { viewModel.toggleFilterSheet() }
             )
-        },
-        floatingActionButton = {
-            val successState = uiState as? MainMapUIState.Success
-            if (successState != null && successState.filteredItems.isNotEmpty()) {
-                FloatingActionButton(
-                    onClick = { viewModel.toggleClustering() }
-                ) {
-                    Icon(
-                        if (successState.mapSettings.enableClustering) {
-                            Icons.Default.GridOn
-                        } else {
-                            Icons.Default.GridOff
-                        },
-                        contentDescription = "Toggle Clustering"
-                    )
-                }
-            }
         }
     ) { paddingValues ->
         when (val state = uiState) {
@@ -100,7 +86,7 @@ fun MapTopAppBar(
     onFilterClick: () -> Unit
 ) {
     TopAppBar(
-        title = { Text("CoffeePath") },
+        title = { Text(stringResource(R.string.app_name)) },
         actions = {
             BadgedBox(
                 badge = {
@@ -117,7 +103,7 @@ fun MapTopAppBar(
                 IconButton(onClick = onFilterClick) {
                     Icon(
                         Icons.Default.FilterList,
-                        contentDescription = "Filters",
+                        contentDescription = stringResource(R.string.filters),
                         tint = if (hasActiveFilters) {
                             MaterialTheme.colorScheme.primary
                         } else {
@@ -128,20 +114,30 @@ fun MapTopAppBar(
             }
 
             IconButton(onClick = { navigation.navigateToSearch() }) {
-                Icon(Icons.Default.Search, contentDescription = "Search")
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = stringResource(R.string.search)
+                )
             }
 
             IconButton(onClick = { navigation.navigateToFavorites() }) {
-                Icon(Icons.Default.Favorite, contentDescription = "Favorites")
+                Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = stringResource(R.string.favorites)
+                )
             }
 
             IconButton(onClick = { navigation.navigateToProfile() }) {
-                Icon(Icons.Default.Person, contentDescription = "Profile")
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = stringResource(R.string.profile)
+                )
             }
         }
     )
 }
 
+@OptIn(MapsComposeExperimentalApi::class)
 @Composable
 fun MapContent(
     modifier: Modifier = Modifier,
@@ -214,7 +210,11 @@ fun MapContent(
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) {
-            Text(if (hasLoadedInitialData) "Reload Cafes in Area" else "Load Cafes")
+            Text(
+                stringResource(
+                    if (hasLoadedInitialData) R.string.reload_cafes else R.string.load_cafes
+                )
+            )
         }
 
         if (isLoading) {
@@ -225,15 +225,6 @@ fun MapContent(
             )
         }
 
-        if (cafeItems.isNotEmpty()) {
-            MapInfoCard(
-                totalCafes = cafeItems.size,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = if (isLoading) 8.dp else 16.dp)
-            )
-        }
-
         error?.let {
             Snackbar(
                 modifier = Modifier
@@ -241,43 +232,12 @@ fun MapContent(
                     .padding(16.dp),
                 action = {
                     TextButton(onClick = { /* Clear error */ }) {
-                        Text("Dismiss")
+                        Text(stringResource(R.string.dismiss))
                     }
                 }
             ) {
                 Text(text = it)
             }
-        }
-    }
-}
-
-@Composable
-fun MapInfoCard(
-    totalCafes: Int,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.Place,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(16.dp)
-            )
-            Text(
-                text = "$totalCafes ${if (totalCafes == 1) "cafe" else "cafes"} on map",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
         }
     }
 }
@@ -295,7 +255,7 @@ fun LoadingMapState(paddingValues: PaddingValues) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CircularProgressIndicator()
-            Text("Loading map...")
+            Text(stringResource(R.string.loading_map))
         }
     }
 }
@@ -320,7 +280,7 @@ fun ErrorMapState(paddingValues: PaddingValues, message: String) {
                 tint = MaterialTheme.colorScheme.error
             )
             Text(
-                text = "Error loading map",
+                text = stringResource(R.string.error_loading_map),
                 style = MaterialTheme.typography.titleLarge
             )
             Text(

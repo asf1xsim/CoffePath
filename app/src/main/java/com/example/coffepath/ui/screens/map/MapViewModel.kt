@@ -190,30 +190,6 @@ class MainMapViewModel @Inject constructor(
         }
     }
 
-    fun updateMapSettings(settings: MapSettings) {
-        val currentState = _uiState.value
-        if (currentState is MainMapUIState.Success) {
-            _uiState.value = currentState.copy(mapSettings = settings)
-        }
-    }
-
-    fun toggleClustering() {
-        val currentState = _uiState.value
-        if (currentState is MainMapUIState.Success) {
-            val newSettings = currentState.mapSettings.copy(
-                enableClustering = !currentState.mapSettings.enableClustering
-            )
-            _uiState.value = currentState.copy(mapSettings = newSettings)
-        }
-    }
-
-    fun clearError() {
-        val currentState = _uiState.value
-        if (currentState is MainMapUIState.Success) {
-            _uiState.value = currentState.copy(error = null)
-        }
-    }
-
     private fun parseOpeningHours(openingHours: String?): Boolean? {
         if (openingHours.isNullOrBlank()) {
             return null
