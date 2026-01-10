@@ -10,15 +10,12 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import java.io.IOException
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_preferences")
 
 class PreferencesRepository(private val context: Context) {
     private val dataStore = context.dataStore
-
-    // ИСПРАВЛЕНИЕ: SharedPreferences для синхронного чтения языка
     private val sharedPrefs: SharedPreferences = context.getSharedPreferences(
         "app_settings",
         Context.MODE_PRIVATE
@@ -72,28 +69,6 @@ class PreferencesRepository(private val context: Context) {
             )
         }
 
-    suspend fun saveUserPreferences(userPreferences: UserPreferences) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_ID] = userPreferences.userId
-            preferences[PreferencesKeys.USER_NAME] = userPreferences.userName
-            preferences[PreferencesKeys.LANGUAGE_CODE] = userPreferences.languageCode
-            preferences[PreferencesKeys.IS_DARK_THEME] = userPreferences.isDarkTheme
-            preferences[PreferencesKeys.LAST_MAP_LATITUDE] = userPreferences.lastMapLatitude
-            preferences[PreferencesKeys.LAST_MAP_LONGITUDE] = userPreferences.lastMapLongitude
-            preferences[PreferencesKeys.LAST_MAP_ZOOM] = userPreferences.lastMapZoom
-            preferences[PreferencesKeys.IS_FIRST_LAUNCH] = userPreferences.isFirstLaunch
-            preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = userPreferences.notificationsEnabled
-            preferences[PreferencesKeys.LAST_SYNC_TIMESTAMP] = userPreferences.lastSyncTimestamp
-        }
-        sharedPrefs.edit().putString("language_code", userPreferences.languageCode).apply()
-    }
-
-    suspend fun updateUserId(userId: String) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_ID] = userId
-        }
-    }
-
     suspend fun updateUserName(userName: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.USER_NAME] = userName
@@ -105,38 +80,6 @@ class PreferencesRepository(private val context: Context) {
             preferences[PreferencesKeys.LANGUAGE_CODE] = languageCode
         }
         sharedPrefs.edit().putString("language_code", languageCode).apply()
-    }
-
-    suspend fun toggleTheme(isDark: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.IS_DARK_THEME] = isDark
-        }
-    }
-
-    suspend fun updateMapPosition(latitude: Double, longitude: Double, zoom: Float) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.LAST_MAP_LATITUDE] = latitude
-            preferences[PreferencesKeys.LAST_MAP_LONGITUDE] = longitude
-            preferences[PreferencesKeys.LAST_MAP_ZOOM] = zoom
-        }
-    }
-
-    suspend fun markAsLaunched() {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.IS_FIRST_LAUNCH] = false
-        }
-    }
-
-    suspend fun toggleNotifications(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
-        }
-    }
-
-    suspend fun updateSyncTimestamp() {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.LAST_SYNC_TIMESTAMP] = System.currentTimeMillis()
-        }
     }
 
     suspend fun clearPreferences() {
@@ -165,16 +108,6 @@ class PreferencesRepository(private val context: Context) {
         }
     }
 
-    suspend fun getUserId(): String {
-        val preferences = dataStore.data.map { it[PreferencesKeys.USER_ID] }
-        return preferences.catch { emit(null) }.map { it ?: "" }
-            .let { flow ->
-                var result = ""
-                flow.collect { result = it }
-                result
-            }
-    }
-
     val userIdFlow: Flow<String> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
@@ -193,7 +126,4 @@ class PreferencesRepository(private val context: Context) {
                 newId
             }
         }
-    fun getCurrentLanguage(): String {
-        return sharedPrefs.getString("language_code", "en") ?: "en"
-    }
 }

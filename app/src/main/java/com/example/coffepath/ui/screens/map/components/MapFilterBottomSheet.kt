@@ -1,4 +1,4 @@
-package com.example.coffepath.ui.screens.map
+package com.example.coffepath.ui.screens.map.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

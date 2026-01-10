@@ -1,4 +1,4 @@
-package com.example.coffepath.ui.screens.map
+package com.example.coffepath.ui.screens.map.components
 
 interface MapActions {
     fun loadCafesInArea(south: Double, west: Double, north: Double, east: Double)

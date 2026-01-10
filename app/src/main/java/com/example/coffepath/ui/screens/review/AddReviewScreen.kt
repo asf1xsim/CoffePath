@@ -7,8 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +18,7 @@ import com.example.coffepath.R
 import com.example.coffepath.mlkit.model.DrinkType
 import com.example.coffepath.navigation.INavigationRouter
 import com.example.coffepath.ui.components.PhotoPicker
+import com.example.coffepath.ui.screens.review.components.RatingBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -266,38 +265,6 @@ fun AddReviewScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun RatingBar(
-    rating: Float,
-    onRatingChanged: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-    maxStars: Int = 5,
-    enabled: Boolean = true
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        for (i in 1..maxStars) {
-            IconButton(
-                onClick = { if (enabled) onRatingChanged(i.toFloat()) },
-                enabled = enabled
-            ) {
-                Icon(
-                    imageVector = if (i <= rating) Icons.Default.Star else Icons.Default.StarBorder,
-                    contentDescription = stringResource(R.string.rating),
-                    tint = if (i <= rating) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(36.dp)
-                )
-            }
         }
     }
 }

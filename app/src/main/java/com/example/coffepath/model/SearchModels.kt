@@ -78,16 +78,4 @@ data class SearchHistory(
     val query: String,
     val timestamp: Long = System.currentTimeMillis()
 ) : Serializable {
-    fun getFormattedDate(): String {
-        val now = System.currentTimeMillis()
-        val diff = now - timestamp
-
-        return when {
-            diff < 60_000 -> "Just now"
-            diff < 3600_000 -> "${diff / 60_000} min ago"
-            diff < 86400_000 -> "${diff / 3600_000} hours ago"
-            diff < 604800_000 -> "${diff / 86400_000} days ago"
-            else -> "Long ago"
-        }
-    }
 }

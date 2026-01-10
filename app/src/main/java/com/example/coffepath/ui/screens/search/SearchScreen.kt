@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coffepath.model.*
 import com.example.coffepath.navigation.INavigationRouter
+import com.example.coffepath.ui.screens.search.components.FilterDialog
+import com.example.coffepath.ui.screens.search.components.SearchControls
+import com.example.coffepath.ui.screens.search.components.SearchHistoryList
+import com.example.coffepath.ui.screens.search.components.SearchResultCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,8 +36,7 @@ fun SearchScreen(
                 query = uiState.query,
                 onQueryChange = { viewModel.updateQuery(it) },
                 onClearQuery = { viewModel.clearQuery() },
-                onNavigateBack = { navigation.returnBack() },
-                filterCount = uiState.filter.getActiveFiltersCount()
+                onNavigateBack = { navigation.returnBack() }
             )
         }
     ) { paddingValues ->
@@ -44,9 +47,7 @@ fun SearchScreen(
         ) {
             SearchControls(
                 filter = uiState.filter,
-                sortOption = uiState.sortOption,
-                onFilterClick = { viewModel.toggleFilters() },
-                onSortClick = { /* Show sort dialog */ }
+                onFilterClick = { viewModel.toggleFilters() }
             )
 
             when {
@@ -97,8 +98,7 @@ fun SearchTopAppBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
-    onNavigateBack: () -> Unit,
-    filterCount: Int
+    onNavigateBack: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -132,42 +132,6 @@ fun SearchTopAppBar(
 }
 
 @Composable
-fun SearchControls(
-    filter: CafeFilter,
-    sortOption: CafeSortOption,
-    onFilterClick: () -> Unit,
-    onSortClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        FilterChip(
-            selected = filter.hasActiveFilters(),
-            onClick = onFilterClick,
-            label = {
-                Text(
-                    if (filter.hasActiveFilters()) {
-                        "Filters (${filter.getActiveFiltersCount()})"
-                    } else {
-                        "Filters"
-                    }
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.FilterList,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        )
-    }
-}
-
-@Composable
 fun SearchResultsList(
     results: List<SearchResult>,
     onCafeClick: (Long) -> Unit
@@ -191,156 +155,6 @@ fun SearchResultsList(
                 result = result,
                 onClick = { onCafeClick(result.cafe.id) }
             )
-        }
-    }
-}
-
-@Composable
-fun SearchResultCard(
-    result: SearchResult,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = result.cafe.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            result.cafe.address?.let { address ->
-                Text(
-                    text = address,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (result.averageRating != null) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Star,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = String.format("%.1f", result.averageRating),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-
-                if (result.reviewsCount > 0) {
-                    Text(
-                        text = "${result.reviewsCount} ${if (result.reviewsCount == 1) "review" else "reviews"}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                if (result.cafe.isFavorite) {
-                    Icon(
-                        Icons.Default.Favorite,
-                        contentDescription = "Favorite",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SearchHistoryList(
-    history: List<SearchHistory>,
-    onHistoryClick: (String) -> Unit,
-    onHistoryRemove: (String) -> Unit,
-    onClearHistory: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Recent Searches",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            TextButton(onClick = onClearHistory) {
-                Text("Clear All")
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(history) { item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onHistoryClick(item.query) }
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            Icons.Default.History,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Column {
-                            Text(
-                                text = item.query,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = item.getFormattedDate(),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    IconButton(onClick = { onHistoryRemove(item.query) }) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Remove",
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-
-                Divider()
-            }
         }
     }
 }
@@ -408,76 +222,4 @@ fun LoadingState() {
     ) {
         CircularProgressIndicator()
     }
-}
-
-@Composable
-fun FilterDialog(
-    filter: CafeFilter,
-    onFilterUpdate: (CafeFilter) -> Unit,
-    onDismiss: () -> Unit,
-    onClearFilters: () -> Unit
-) {
-    var localFilter by remember { mutableStateOf(filter) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Filters") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Minimum Rating: ${localFilter.minRating?.let { String.format("%.1f", it) } ?: "Any"}")
-                Slider(
-                    value = localFilter.minRating ?: 0f,
-                    onValueChange = { localFilter = localFilter.copy(minRating = if (it > 0) it else null) },
-                    valueRange = 0f..5f,
-                    steps = 9
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Has Reviews")
-                    Switch(
-                        checked = localFilter.hasReviews,
-                        onCheckedChange = { localFilter = localFilter.copy(hasReviews = it) }
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Favorites Only")
-                    Switch(
-                        checked = localFilter.isFavorite,
-                        onCheckedChange = { localFilter = localFilter.copy(isFavorite = it) }
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onFilterUpdate(localFilter)
-                    onDismiss()
-                }
-            ) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(onClick = {
-                    localFilter = CafeFilter()
-                    onClearFilters()
-                }) {
-                    Text("Clear")
-                }
-                TextButton(onClick = onDismiss) {
-                    Text("Cancel")
-                }
-            }
-        }
-    )
 }

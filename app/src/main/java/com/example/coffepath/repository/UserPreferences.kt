@@ -4,8 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserPreferences(
-    // ИСПРАВЛЕНИЕ: userId не должен генерироваться каждый раз
-    // Он будет задан PreferencesRepository
     val userId: String = "",
     val userName: String = "User",
     val languageCode: String = "en",

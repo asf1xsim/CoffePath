@@ -17,12 +17,6 @@ interface ISearchRepository {
         sortOption: CafeSortOption = CafeSortOption.NAME_ASC
     ): List<SearchResult>
 
-    fun observeSearchResults(
-        query: String,
-        filter: CafeFilter = CafeFilter(),
-        sortOption: CafeSortOption = CafeSortOption.NAME_ASC
-    ): Flow<List<SearchResult>>
-
     suspend fun addToSearchHistory(query: String)
     suspend fun getSearchHistory(): List<SearchHistory>
     suspend fun clearSearchHistory()
@@ -69,46 +63,6 @@ class SearchRepositoryImpl @Inject constructor(
         }
 
         return sortResults(filtered, sortOption)
-    }
-
-    override fun observeSearchResults(
-        query: String,
-        filter: CafeFilter,
-        sortOption: CafeSortOption
-    ): Flow<List<SearchResult>> {
-        return combine(
-            cafeDao.getAll(),
-            reviewDao.getAllReviews()
-        ) { cafes, _ ->
-            val filteredCafes = if (query.isBlank()) {
-                cafes
-            } else {
-                cafes.filter { cafe ->
-                    cafe.name.contains(query, ignoreCase = true) ||
-                            cafe.address?.contains(query, ignoreCase = true) == true
-                }
-            }
-
-            val searchResults = filteredCafes.map { cafe ->
-                val averageRating = reviewDao.getAverageRatingForCafe(cafe.id)
-                val reviewsCount = reviewDao.getReviewCountForCafe(cafe.id)
-
-                SearchResult(
-                    cafe = cafe,
-                    averageRating = averageRating,
-                    reviewsCount = reviewsCount,
-                    distance = null
-                )
-            }
-
-            val filtered = if (filter.hasActiveFilters()) {
-                searchResults.filter { it.matchesFilter(filter) }
-            } else {
-                searchResults
-            }
-
-            sortResults(filtered, sortOption)
-        }
     }
 
     private fun sortResults(

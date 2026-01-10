@@ -76,10 +76,4 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun hasUserReviewedCafe(cafeId: Long, userId: String): Boolean {
         return reviewDao.hasUserReviewedCafe(cafeId, userId)
     }
-    fun getRecentReviewsByUser(userId: String, limit: Int = 5): Flow<List<Review>> {
-        return reviewDao.getRecentReviewsByUser(userId, limit)
-    }
-    fun getReviewsWithPhotos(): Flow<List<Review>> {
-        return reviewDao.getReviewsWithPhotos()
-    }
 }

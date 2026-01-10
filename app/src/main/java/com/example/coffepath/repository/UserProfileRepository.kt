@@ -120,24 +120,4 @@ class UserProfileRepositoryImpl @Inject constructor(
         return profile
     }
 
-    suspend fun initializeUserProfile() {
-        val userId = preferencesRepository.userIdFlow.first()
-        val existing = userProfileDao.getUserProfile(userId)
-
-        if (existing == null) {
-            val preferences = preferencesRepository.userPreferencesFlow.first()
-            val profile = UserProfile(
-                userId = userId,
-                name = preferences.userName.ifEmpty { "User" },
-                email = null,
-                photoUri = null,
-                reviewsCount = 0,
-                favoritesCount = 0,
-                visitedCafesCount = 0,
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
-            )
-            userProfileDao.insert(profile)
-        }
-    }
 }

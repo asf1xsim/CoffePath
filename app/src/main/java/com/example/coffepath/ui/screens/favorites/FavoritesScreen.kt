@@ -22,6 +22,7 @@ import com.example.coffepath.R
 import com.example.coffepath.model.Cafe
 import com.example.coffepath.navigation.INavigationRouter
 import com.example.coffepath.repository.ICafeRepository
+import com.example.coffepath.ui.screens.favorites.components.CafeListItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -93,48 +94,6 @@ fun FavoritesScreen(
                         onClick = { navigation.navigateToCafeDetail(cafe.id) }
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun CafeListItem(
-    cafe: Cafe,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = cafe.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            cafe.address?.let { address ->
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = address,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            cafe.openingHours?.let { hours ->
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.hours_label, hours),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
     }

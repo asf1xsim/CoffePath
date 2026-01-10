@@ -45,7 +45,6 @@ fun PhotoPicker(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         uri?.let { tempUri ->
-            // Копируем изображение в постоянное хранилище приложения
             try {
                 val bitmap = PhotoUtils.loadBitmapFromUri(context, tempUri, 1024, 1024)
                 bitmap?.let {
@@ -71,7 +70,6 @@ fun PhotoPicker(
     ) { success ->
         if (success) {
             tempCameraUri?.let { uri ->
-                // Фото уже сохранено через PhotoUtils.createImageUri
                 onImageSelected(uri)
             }
         }
@@ -257,24 +255,3 @@ fun PhotoPicker(
     }
 }
 
-@Composable
-fun AddPhotoButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    text: String = "Add Photo"
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled
-    ) {
-        Icon(
-            Icons.Default.AddAPhoto,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text)
-    }
-}
