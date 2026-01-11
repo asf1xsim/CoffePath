@@ -63,6 +63,13 @@ android {
             isIncludeAndroidResources = true
         }
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
+        }
+    }
 }
 
 dependencies {
@@ -163,4 +170,7 @@ dependencies {
     kaptAndroidTest(libs.hilt.kapt)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    testImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
 }
