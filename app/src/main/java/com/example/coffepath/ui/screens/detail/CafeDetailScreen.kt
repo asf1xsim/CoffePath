@@ -175,7 +175,7 @@ fun CafeDetailContent(
 
         cafe.openingHours?.let { hours ->
             item {
-               DetailRow(label = stringResource(R.string.opening_hours), value = hours)
+                DetailRow(label = stringResource(R.string.opening_hours), value = hours)
             }
         }
 
@@ -248,7 +248,7 @@ fun CafeDetailContent(
         item {
             Text(
                 text = stringResource(R.string.reviews_count, reviews.size),
-            style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge
             )
         }
 
@@ -297,4 +297,3 @@ fun CafeDetailContent(
         }
     }
 }
-
