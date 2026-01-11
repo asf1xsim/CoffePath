@@ -28,7 +28,7 @@ data class UserProfile(
     val updatedAt: Long = System.currentTimeMillis()
 ) : Serializable {
     fun getInitials(): String {
-        val nameParts = name.trim().split(" ")
+        val nameParts = name.trim().split(" ").filter { it.isNotBlank() }
         return when {
             nameParts.size >= 2 -> {
                 "${nameParts[0].first().uppercase()}${nameParts[1].first().uppercase()}"

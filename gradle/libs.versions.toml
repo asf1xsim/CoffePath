@@ -27,7 +27,7 @@ googlemap_compose_utils = "6.12.1"
 room = "2.8.3"
 lifecycle = "2.9.4"
 
-# DataStore и Serialization
+# DataStore Ð¸ Serialization
 datastore = "1.1.1"
 serialization = "1.7.3"
 
@@ -45,6 +45,15 @@ foundation = "1.10.0"
 # Location Services
 play-services-location = "21.0.1"
 kotlinx-coroutines-play-services = "1.7.3"
+
+# Testing
+coroutines-test = "1.7.3"
+turbine = "1.0.0"
+mockk = "1.13.8"
+arch-core-testing = "2.2.0"
+test-core = "1.5.0"
+test-runner = "1.5.2"
+test-rules = "1.5.0"
 
 
 
@@ -124,6 +133,18 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 # Location Services
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
+
+# Testing - Unit Tests
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-core-testing" }
+
+# Testing - Android Tests
+test-core = { group = "androidx.test", name = "core", version.ref = "test-core" }
+test-runner = { group = "androidx.test", name = "runner", version.ref = "test-runner" }
+test-rules = { group = "androidx.test", name = "rules", version.ref = "test-rules" }
+hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt_v" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

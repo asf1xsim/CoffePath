@@ -56,6 +56,13 @@ android {
         compose = true
         buildConfig = true
     }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -124,7 +131,7 @@ dependencies {
     // Kotlin Serialization
     implementation(libs.kotlinx.serialization.json)
 
-    // ML Kit (
+    // ML Kit
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.text.recognition)
 
@@ -139,4 +146,21 @@ dependencies {
     // Location Services
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
+
+    // Testing dependencies
+    // Unit tests
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
+    testImplementation(libs.arch.core.testing)
+
+    // Android tests
+    androidTestImplementation(libs.test.core)
+    androidTestImplementation(libs.test.runner)
+    androidTestImplementation(libs.test.rules)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.kapt)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
