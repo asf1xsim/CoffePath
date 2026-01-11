@@ -17,7 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coffepath.R
 import com.example.coffepath.mlkit.model.DrinkType
 import com.example.coffepath.navigation.INavigationRouter
-import com.example.coffepath.ui.components.PhotoPicker
+import com.example.coffepath.utils.PhotoPicker
 import com.example.coffepath.ui.screens.review.components.DrinkTypeSelectionDialog
 import com.example.coffepath.ui.screens.review.components.RatingBar
 

@@ -64,6 +64,9 @@ interface UserProfileDao {
     @Query("UPDATE user_profile SET favorites_count = CASE WHEN favorites_count > 0 THEN favorites_count - 1 ELSE 0 END, updated_at = :timestamp WHERE user_id = :userId")
     suspend fun decrementFavoritesCount(userId: String, timestamp: Long = System.currentTimeMillis())
 
+    @Query("UPDATE user_profile SET visited_cafes_count = visited_cafes_count + 1, updated_at = :timestamp WHERE user_id = :userId")
+    suspend fun incrementVisitedCafesCount(userId: String, timestamp: Long = System.currentTimeMillis())
+
     @Query("SELECT EXISTS(SELECT 1 FROM user_profile WHERE user_id = :userId)")
     suspend fun exists(userId: String): Boolean
 }

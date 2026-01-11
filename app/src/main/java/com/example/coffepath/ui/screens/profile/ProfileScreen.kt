@@ -1,5 +1,6 @@
 package com.example.coffepath.ui.screens.profile
 
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.coffepath.R
 import com.example.coffepath.navigation.INavigationRouter
-import com.example.coffepath.ui.components.PhotoPicker
+import com.example.coffepath.utils.PhotoPicker
 import com.example.coffepath.ui.screens.profile.components.ProfileHeader
 import com.example.coffepath.ui.screens.profile.components.ReviewListItem
 import com.example.coffepath.ui.screens.profile.components.StatisticsSection
@@ -94,7 +95,7 @@ fun ProfileScreen(
 
                                 PhotoPicker(
                                     selectedImageUri = uiState.profile?.photoUri?.let {
-                                        android.net.Uri.parse(it)
+                                        Uri.parse(it)
                                     },
                                     onImageSelected = { uri ->
                                         viewModel.updateProfilePhoto(uri)

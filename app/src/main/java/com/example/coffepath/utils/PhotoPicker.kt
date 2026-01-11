@@ -1,4 +1,4 @@
-package com.example.coffepath.ui.components
+package com.example.coffepath.utils
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,12 +18,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.coffepath.R
 import coil.compose.rememberAsyncImagePainter
-import com.example.coffepath.utils.PermissionUtils
-import com.example.coffepath.utils.PhotoUtils
 
 @Composable
 fun PhotoPicker(
@@ -86,7 +87,7 @@ fun PhotoPicker(
             ) {
                 Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
                     Icon(Icons.Default.AddAPhoto, null, Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
-                    Text("Tap to add photo", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = stringResource(R.string.tap_to_add_photo), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
@@ -95,10 +96,10 @@ fun PhotoPicker(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Choose source") },
+            title = { stringResource(R.string.choose_photo_source) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SourceButton(Icons.Default.CameraAlt, "Take photo") {
+                    SourceButton(Icons.Default.CameraAlt, stringResource(R.string.take_photo)) {
                         showDialog = false
                         if (PermissionUtils.hasCameraPermissions(context)) {
                             PhotoUtils.createImageUri(context, "cam_${System.currentTimeMillis()}.jpg")?.let {
@@ -107,14 +108,14 @@ fun PhotoPicker(
                             }
                         } else permissionLauncher.launch(PermissionUtils.CAMERA_PERMISSIONS)
                     }
-                    SourceButton(Icons.Default.PhotoLibrary, "Gallery") {
+                    SourceButton(Icons.Default.PhotoLibrary, stringResource(R.string.choose_from_gallery)) {
                         showDialog = false
                         galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showDialog = false }) { stringResource(R.string.cancel) } }
         )
     }
 
@@ -122,14 +123,14 @@ fun PhotoPicker(
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
             confirmButton = { TextButton(onClick = { showPermissionRationale = false }) { Text("OK") } },
-            title = { Text("Permission required") },
-            text = { Text("Camera permission is needed to take photos.") }
+            title = { stringResource(R.string.permission_required) },
+            text = { stringResource(R.string.permission_explanation) }
         )
     }
 }
 
 @Composable
-fun SourceButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+fun SourceButton(icon: ImageVector, label: String, onClick: () -> Unit) {
     OutlinedButton(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()) {

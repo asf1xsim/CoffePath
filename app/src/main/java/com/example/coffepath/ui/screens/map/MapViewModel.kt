@@ -9,6 +9,9 @@ import com.example.coffepath.repository.IReviewRepository
 import com.example.coffepath.repository.IUserProfileRepository
 import com.example.coffepath.repository.PreferencesRepository
 import com.example.coffepath.ui.screens.map.components.MapActions
+import com.example.coffepath.utils.CafeVisitTracker
+import com.example.coffepath.utils.LocationService
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,14 +23,68 @@ class MainMapViewModel @Inject constructor(
     private val cafeRepository: ICafeRepository,
     private val reviewRepository: IReviewRepository,
     private val userProfileRepository: IUserProfileRepository,
-    private val preferencesRepository: PreferencesRepository
+    private val preferencesRepository: PreferencesRepository,
+    private val locationService: LocationService,
+    private val cafeVisitTracker: CafeVisitTracker
 ) : ViewModel(), MapActions {
-
     private val _uiState = MutableStateFlow<MainMapUIState>(MainMapUIState.Loading)
     val uiState: StateFlow<MainMapUIState> = _uiState.asStateFlow()
+    private val _userLocation = MutableStateFlow<LatLng?>(null)
+    val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
+    private val _locationPermissionGranted = MutableStateFlow(false)
+    val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted.asStateFlow()
 
     init {
         observeCafes()
+        checkLocationPermission()
+    }
+
+    private fun checkLocationPermission() {
+        _locationPermissionGranted.value = locationService.hasLocationPermission()
+        if (_locationPermissionGranted.value) {
+            startLocationTracking()
+        }
+    }
+
+    fun onLocationPermissionResult(granted: Boolean) {
+        _locationPermissionGranted.value = granted
+        if (granted) {
+            startLocationTracking()
+        }
+    }
+
+    private fun startLocationTracking() {
+        viewModelScope.launch {
+            locationService.getLocationUpdates()
+                .catch { e ->
+                    Log.e("MainMapViewModel", "Error getting location updates", e)
+                }
+                .collect { location ->
+                    _userLocation.value = location
+                    Log.d("MainMapViewModel", "User location updated: $location")
+
+                    val currentState = _uiState.value
+                    if (currentState is MainMapUIState.Success) {
+                        cafeVisitTracker.checkCafeVisit(
+                            userLocation = location,
+                            cafes = currentState.cafeItems.map { it.cafe }
+                        )
+                    }
+                }
+        }
+    }
+
+    fun getCurrentLocation() {
+        viewModelScope.launch {
+            locationService.getCurrentLocation()
+                .onSuccess { location ->
+                    _userLocation.value = location
+                    Log.d("MainMapViewModel", "Current location retrieved: $location")
+                }
+                .onFailure { e ->
+                    Log.e("MainMapViewModel", "Failed to get current location", e)
+                }
+        }
     }
 
     private fun observeCafes() {

@@ -62,4 +62,7 @@ class CafeRepositoryImpl @Inject constructor(
     override suspend fun updateCafe(cafe: Cafe) {
         cafeDao.update(cafe)
     }
+    override suspend fun updateCafeMenu(cafeId: Long, menuJson: String?) {
+        cafeDao.updateMenuJson(cafeId, menuJson)
+    }
 }

@@ -53,9 +53,24 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun insertReview(review: Review): Long {
         val reviewId = reviewDao.insert(review)
         try {
+            val profileExists = userProfileDao.exists(review.userId)
+            if (!profileExists) {
+                val basicProfile = com.example.coffepath.model.UserProfile(
+                    userId = review.userId,
+                    name = "User",
+                    email = null,
+                    photoUri = null,
+                    reviewsCount = 0,
+                    favoritesCount = 0,
+                    visitedCafesCount = 0,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+                userProfileDao.insert(basicProfile)
+            }
             userProfileDao.incrementReviewsCount(review.userId)
         } catch (e: Exception) {
-
+            android.util.Log.e("ReviewRepository", "Failed to increment review count", e)
         }
 
         return reviewId
@@ -68,9 +83,12 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun deleteReview(review: Review) {
         reviewDao.delete(review)
         try {
-            userProfileDao.decrementReviewsCount(review.userId)
+            val profileExists = userProfileDao.exists(review.userId)
+            if (profileExists) {
+                userProfileDao.decrementReviewsCount(review.userId)
+            }
         } catch (e: Exception) {
-
+            android.util.Log.e("ReviewRepository", "Failed to decrement review count", e)
         }
     }
     override suspend fun hasUserReviewedCafe(cafeId: Long, userId: String): Boolean {

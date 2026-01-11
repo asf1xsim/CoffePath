@@ -1,41 +1,46 @@
 package com.example.coffepath.mlkit.model
 
 import android.util.Log
-import java.io.Serializable
+import kotlinx.serialization.Serializable
+import java.io.Serializable as JavaSerializable
 
+@Serializable
 data class MenuOCRResult(
     val fullText: String,
     val textBlocks: List<TextBlock>,
     val detectedItems: List<MenuItem>,
     val confidence: Float
-) : Serializable {
+) : JavaSerializable {
     fun hasText(): Boolean = fullText.isNotBlank()
     fun hasMenuItems(): Boolean = detectedItems.isNotEmpty()
     fun getBlockCount(): Int = textBlocks.size
 }
 
+@Serializable
 data class TextBlock(
     val text: String,
     val confidence: Float,
     val boundingBox: BoundingBox?
-) : Serializable
+) : JavaSerializable
 
+@Serializable
 data class BoundingBox(
     val left: Int,
     val top: Int,
     val right: Int,
     val bottom: Int
-) : Serializable {
+) : JavaSerializable {
     fun width(): Int = right - left
     fun height(): Int = bottom - top
 }
 
+@Serializable
 data class MenuItem(
     val name: String,
     val price: String?,
     val description: String?,
     val category: MenuCategory
-) : Serializable {
+) : JavaSerializable {
 
     fun getFullDescription(): String {
         val parts = mutableListOf<String>()
@@ -49,7 +54,7 @@ data class MenuItem(
         return parts.joinToString(" - ")
     }
 }
-
+@Serializable
 enum class MenuCategory(val displayName: String) {
     COFFEE("Coffee"),
     TEA("Tea"),
@@ -110,14 +115,9 @@ enum class MenuCategory(val displayName: String) {
 }
 
 object MenuParser {
-
     private val priceRegex = Regex("""(\d+[.,]?\d{0,2})\s*(Kč|KČ|CZK|kč|€|EUR|\$|USD)?""", RegexOption.IGNORE_CASE)
-
-    // Regex только для чисел (для случаев когда цена - это просто число справа)
     private val numberOnlyRegex = Regex("""^\d+$""")
-
     private val menuItemRegex = Regex("""^[A-ZÁ-Ž].*""")
-
     fun parseMenu(fullText: String, textBlocks: List<TextBlock>): List<MenuItem> {
         val items = mutableListOf<MenuItem>()
         val lines = fullText.split("\n").map { it.trim() }.filter { it.isNotBlank() }
@@ -130,19 +130,14 @@ object MenuParser {
             val line = lines[i]
 
             Log.d("ImprovedMenuParser", "Line $i: '$line'")
-
-            // Пропускаем заголовки и слишком короткие строки
             if (line.length < 3 || isHeader(line)) {
                 Log.d("ImprovedMenuParser", "  -> Skipped (header or too short)")
                 i++
                 continue
             }
-
-            // Проверяем, начинается ли строка с заглавной буквы (потенциальное название блюда)
             if (menuItemRegex.matches(line)) {
                 Log.d("ImprovedMenuParser", "  -> Potential menu item detected")
 
-                // Попробуем найти цену в этой же строке
                 var price = extractPriceFromLine(line)
                 var name = line
 
@@ -150,32 +145,20 @@ object MenuParser {
                     name = removePriceFromName(line, price)
                     Log.d("ImprovedMenuParser", "  -> Price found in same line: $price")
                 } else {
-                    // Цена не найдена в той же строке
-                    // Проверяем следующую строку - может быть там только число (цена)?
                     if (i + 1 < lines.size) {
                         val nextLine = lines[i + 1].trim()
-
-                        // Если следующая строка - просто число, это может быть цена
                         if (numberOnlyRegex.matches(nextLine)) {
                             price = nextLine
-                            i++ // Пропускаем эту строку с ценой
+                            i++
                             Log.d("ImprovedMenuParser", "  -> Price found on next line: $price")
                         }
                     }
                 }
-
-                // Очистка названия от точек и пробелов
                 name = cleanName(name)
 
-                // Попытка найти описание (следующая строка после названия/цены)
                 var description: String? = null
                 if (i + 1 < lines.size) {
                     val nextLine = lines[i + 1].trim()
-
-                    // Описание - это строка которая:
-                    // 1. Не начинается с заглавной (не новое блюдо)
-                    // 2. Не является ценой
-                    // 3. Достаточно длинная
                     if (!menuItemRegex.matches(nextLine) &&
                         !numberOnlyRegex.matches(nextLine) &&
                         !containsOnlyPrice(nextLine) &&
@@ -205,74 +188,43 @@ object MenuParser {
         return items
     }
 
-    /**
-     * Извлекает цену из строки
-     * Поддерживает форматы: "49", "49 Kč", "49Kč", "3.50 €", "129"
-     */
     private fun extractPriceFromLine(text: String): String? {
-        // Сначала пробуем найти число с валютой
         val match = priceRegex.find(text)
         if (match != null) {
             return match.value.trim()
         }
-
-        // Если не нашли, ищем просто последнее число в строке
         val numbers = Regex("""\d+""").findAll(text).toList()
         return numbers.lastOrNull()?.value
     }
 
-    /**
-     * Удаляет цену и лишние символы из названия
-     */
     private fun removePriceFromName(text: String, price: String?): String {
         var result = text
-
         if (price != null) {
-            // Удаляем цену
             result = result.replace(price, "")
-
-            // Удаляем валюту если осталась
             result = result.replace(Regex("""(Kč|KČ|CZK|kč|€|EUR|\$|USD)""", RegexOption.IGNORE_CASE), "")
         }
-
         return result.trim()
     }
 
-    /**
-     * Очищает название от точек, лишних пробелов
-     */
     private fun cleanName(name: String): String {
         return name
-            .replace(Regex("""\.{2,}"""), "") // Удаляем множественные точки (........)
-            .replace(Regex("""\s{2,}"""), " ") // Множественные пробелы -> один пробел
+            .replace(Regex("""\.{2,}"""), "")
+            .replace(Regex("""\s{2,}"""), " ")
             .trim()
     }
 
-    /**
-     * Форматирует цену в читаемый вид
-     */
     private fun formatPrice(price: String): String {
-        // Если цена уже содержит валюту, оставляем как есть
         if (price.matches(Regex(""".*[A-Za-zČčÁáÉéÍíÓóÚúŮůÝýĎďŤťŇňŘřŠšŽž€\$].*"""))) {
             return price
         }
-
-        // Если это просто число, добавляем "Kč" (для чешских меню)
         return "$price Kč"
     }
 
-    /**
-     * Проверяет, содержит ли строка только цену (число с/без валюты)
-     */
     private fun containsOnlyPrice(text: String): Boolean {
         val trimmed = text.trim()
         return priceRegex.matches(trimmed) || numberOnlyRegex.matches(trimmed)
     }
 
-    /**
-     * Проверяет, является ли строка заголовком
-     * Заголовок = много заглавных букв (>70%)
-     */
     private fun isHeader(text: String): Boolean {
         val upperCount = text.count { it.isUpperCase() }
         val totalLetters = text.count { it.isLetter() }

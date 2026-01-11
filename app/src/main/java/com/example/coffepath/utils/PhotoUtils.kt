@@ -1,15 +1,14 @@
 package com.example.coffepath.utils
 
-import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,27 +24,44 @@ object PhotoUtils {
                 .format(System.currentTimeMillis())
         }$PHOTO_EXTENSION"
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+        return try {
+            val storageDir = File(context.cacheDir, "images")
+            if (!storageDir.exists()) {
+                storageDir.mkdirs()
             }
+            val imageFile = File(storageDir, name)
+            FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                imageFile
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-
-        return context.contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
     }
+
     fun saveBitmapToFile(context: Context, bitmap: Bitmap, fileName: String? = null): Uri? {
         return try {
-            val uri = createImageUri(context, fileName) ?: return null
-            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            val name = fileName ?: "IMG_${
+                SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+                    .format(System.currentTimeMillis())
+            }$PHOTO_EXTENSION"
+            val storageDir = File(context.filesDir, "images")
+            if (!storageDir.exists()) {
+                storageDir.mkdirs()
+            }
+
+            val imageFile = File(storageDir, name)
+
+            FileOutputStream(imageFile).use { outputStream ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, PHOTO_QUALITY, outputStream)
             }
-            uri
+            FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                imageFile
+            )
         } catch (e: IOException) {
             e.printStackTrace()
             null
@@ -82,6 +98,7 @@ object PhotoUtils {
             null
         }
     }
+
     private fun calculateInSampleSize(
         width: Int,
         height: Int,
@@ -89,7 +106,6 @@ object PhotoUtils {
         maxHeight: Int
     ): Int {
         var inSampleSize = 1
-
         if (height > maxHeight || width > maxWidth) {
             val halfHeight = height / 2
             val halfWidth = width / 2
@@ -99,7 +115,6 @@ object PhotoUtils {
                 inSampleSize *= 2
             }
         }
-
         return inSampleSize
     }
 
@@ -139,6 +154,7 @@ object PhotoUtils {
             bitmap
         }
     }
+
     fun compressBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         if (bitmap.width <= maxWidth && bitmap.height <= maxHeight) {
             return bitmap
@@ -153,4 +169,20 @@ object PhotoUtils {
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
+    fun cleanupOldImages(context: Context, daysOld: Int = 7) {
+        try {
+            val storageDir = File(context.cacheDir, "images")
+            if (!storageDir.exists()) return
+
+            val cutoffTime = System.currentTimeMillis() - (daysOld * 24 * 60 * 60 * 1000L)
+
+            storageDir.listFiles()?.forEach { file ->
+                if (file.lastModified() < cutoffTime) {
+                    file.delete()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

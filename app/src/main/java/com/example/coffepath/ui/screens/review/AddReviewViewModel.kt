@@ -161,9 +161,18 @@ class AddReviewViewModel @Inject constructor(
             val cafe = cafeRepository.getCafeById(cafeId)
             if (cafe != null) {
                 val menuJson = Json.encodeToString(menuResult)
-                val updatedCafe = cafe.copy(menuJson = menuJson)
-                cafeRepository.updateCafe(updatedCafe)
-                Log.d("AddReviewViewModel", "Menu saved successfully for cafe $cafeId")
+                Log.d("AddReviewViewModel", "Saving menu JSON (${menuJson.length} chars) for cafe $cafeId")
+                Log.d("AddReviewViewModel", "Menu preview: ${menuJson.take(200)}")
+
+                cafeRepository.updateCafeMenu(cafeId, menuJson)
+
+                val verifiedCafe = cafeRepository.getCafeById(cafeId)
+                Log.d("AddReviewViewModel", "Menu saved and verified: ${verifiedCafe?.menuJson != null}")
+                if (verifiedCafe?.menuJson != null) {
+                    Log.d("AddReviewViewModel", "Verified menu JSON length: ${verifiedCafe.menuJson.length}")
+                }
+            } else {
+                Log.e("AddReviewViewModel", "Cafe not found with id: $cafeId")
             }
         } catch (e: Exception) {
             Log.e("AddReviewViewModel", "Failed to save menu to cafe", e)
@@ -183,6 +192,8 @@ class AddReviewViewModel @Inject constructor(
 
             try {
                 val userId = preferencesRepository.userIdFlow.first()
+                Log.d("AddReviewViewModel", "Saving review for userId: $userId, cafeId: $cafeId")
+
                 val review = Review(
                     cafeId = cafeId,
                     userId = userId,
@@ -193,12 +204,15 @@ class AddReviewViewModel @Inject constructor(
                     timestamp = System.currentTimeMillis()
                 )
 
-                reviewRepository.insertReview(review)
+                val reviewId = reviewRepository.insertReview(review)
+                Log.d("AddReviewViewModel", "Review inserted with id: $reviewId")
 
                 currentState.menuOCRResult?.let { menuResult ->
+                    Log.d("AddReviewViewModel", "Saving menu with ${menuResult.detectedItems.size} items")
                     saveMenuToCafe(cafeId, menuResult)
                 }
 
+                Log.d("AddReviewViewModel", "Review save completed successfully")
                 _uiState.update {
                     it.copy(
                         isSaving = false,
@@ -206,6 +220,7 @@ class AddReviewViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                Log.e("AddReviewViewModel", "Failed to save review", e)
                 _uiState.update {
                     it.copy(
                         isSaving = false,

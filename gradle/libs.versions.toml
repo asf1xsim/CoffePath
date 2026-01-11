@@ -38,9 +38,13 @@ mlkit-text-recognition = "16.0.1"
 # Camera
 camera = "1.4.1"
 
-# Coil для загрузки изображений
+# Coil
 coil = "2.7.0"
 foundation = "1.10.0"
+
+# Location Services
+play-services-location = "21.0.1"
+kotlinx-coroutines-play-services = "1.7.3"
 
 
 
@@ -116,6 +120,10 @@ camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+
+# Location Services
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

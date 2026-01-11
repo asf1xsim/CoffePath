@@ -18,6 +18,7 @@ interface IUserProfileRepository {
     suspend fun decrementReviewsCount(userId: String)
     suspend fun incrementFavoritesCount(userId: String)
     suspend fun decrementFavoritesCount(userId: String)
+    suspend fun incrementVisitedCafesCount(userId: String)
     suspend fun updateStats(userId: String, reviewsCount: Int, favoritesCount: Int)
 }
 
@@ -82,6 +83,10 @@ class UserProfileRepositoryImpl @Inject constructor(
 
     override suspend fun decrementFavoritesCount(userId: String) {
         userProfileDao.decrementFavoritesCount(userId)
+    }
+
+    override suspend fun incrementVisitedCafesCount(userId: String) {
+        userProfileDao.incrementVisitedCafesCount(userId)
     }
 
     override suspend fun updateStats(userId: String, reviewsCount: Int, favoritesCount: Int) {

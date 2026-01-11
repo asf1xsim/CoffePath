@@ -1,5 +1,8 @@
 package com.example.coffepath.ui.screens.map
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -26,6 +29,25 @@ fun MapScreen(
     viewModel: MainMapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val userLocation by viewModel.userLocation.collectAsState()
+    val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions.values.any { it }
+        viewModel.onLocationPermissionResult(granted)
+    }
+
+    LaunchedEffect(Unit) {
+        if (!locationPermissionGranted) {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -35,6 +57,19 @@ fun MapScreen(
                 filterCount = (uiState as? MainMapUIState.Success)?.filter?.getActiveFiltersCount() ?: 0,
                 onFilterClick = { viewModel.toggleFilterSheet() }
             )
+        },
+        floatingActionButton = {
+            if (locationPermissionGranted && userLocation != null) {
+                FloatingActionButton(
+                    onClick = { viewModel.getCurrentLocation() },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        Icons.Default.MyLocation,
+                        contentDescription = "My Location"
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         when (val state = uiState) {
@@ -46,6 +81,7 @@ fun MapScreen(
                 MapContent(
                     modifier = Modifier.padding(paddingValues),
                     cafeItems = state.filteredItems,
+                    userLocation = userLocation,
                     enableClustering = state.mapSettings.enableClustering,
                     isLoading = state.isLoading,
                     error = state.error,
@@ -54,9 +90,6 @@ fun MapScreen(
                     },
                     onCafeClick = { cafeId ->
                         navigation.navigateToCafeDetail(cafeId)
-                    },
-                    onToggleFavorite = { cafeId, isFavorite ->
-                        viewModel.toggleFavorite(cafeId, isFavorite)
                     }
                 )
 
@@ -142,16 +175,26 @@ fun MapTopAppBar(
 fun MapContent(
     modifier: Modifier = Modifier,
     cafeItems: List<CafeMapItem>,
+    userLocation: LatLng?,
     enableClustering: Boolean,
     isLoading: Boolean,
     error: String?,
     onLoadCafes: (Double, Double, Double, Double) -> Unit,
-    onCafeClick: (Long) -> Unit,
-    onToggleFavorite: (Long, Boolean) -> Unit
+    onCafeClick: (Long) -> Unit
 ) {
     val defaultPosition = LatLng(49.1951, 16.6068)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(defaultPosition, 12f)
+        position = CameraPosition.fromLatLngZoom(
+            userLocation ?: defaultPosition,
+            12f
+        )
+    }
+    var hasSetInitialPosition by remember { mutableStateOf(false) }
+    LaunchedEffect(userLocation) {
+        if (userLocation != null && !hasSetInitialPosition) {
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 12f)
+            hasSetInitialPosition = true
+        }
     }
 
     var hasLoadedInitialData by remember { mutableStateOf(false) }
@@ -161,7 +204,7 @@ fun MapContent(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(
-                isMyLocationEnabled = false
+                isMyLocationEnabled = userLocation != null
             ),
             uiSettings = MapUiSettings(
                 zoomControlsEnabled = true,

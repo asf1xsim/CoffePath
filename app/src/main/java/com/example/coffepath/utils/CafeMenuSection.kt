@@ -1,4 +1,4 @@
-package com.example.coffepath.ui.components
+package com.example.coffepath.utils
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -67,14 +67,6 @@ fun CafeMenuSection(
                                     result.detectedItems.size
                                 ),
                                 style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = stringResource(
-                                    R.string.confidence,
-                                    (result.confidence * 100).toInt()
-                                ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

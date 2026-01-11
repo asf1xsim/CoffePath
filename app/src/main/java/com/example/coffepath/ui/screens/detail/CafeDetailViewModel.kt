@@ -33,6 +33,7 @@ class CafeDetailViewModel @Inject constructor(
 
     private fun loadCafeDetails() {
         viewModelScope.launch {
+            Log.d("CafeDetailViewModel", "Starting to observe cafe with id: $cafeId")
             combine(
                 cafeRepository.observeCafeById(cafeId).filterNotNull(),
                 reviewRepository.getReviewsForCafe(cafeId)
@@ -40,7 +41,16 @@ class CafeDetailViewModel @Inject constructor(
                 val averageRating = reviewRepository.getAverageRatingForCafe(cafeId)
                 val reviewCount = reviewRepository.getReviewCountForCafe(cafeId)
 
-                Log.d("CafeDetailViewModel", "Cafe updated: ${cafe.name}, menuJson: ${cafe.menuJson?.take(100)}")
+                Log.d("CafeDetailViewModel", "=== Cafe updated ===")
+                Log.d("CafeDetailViewModel", "Name: ${cafe.name}")
+                Log.d("CafeDetailViewModel", "Menu JSON present: ${cafe.menuJson != null}")
+                if (cafe.menuJson != null) {
+                    Log.d("CafeDetailViewModel", "Menu JSON length: ${cafe.menuJson.length}")
+                    Log.d("CafeDetailViewModel", "Menu JSON preview: ${cafe.menuJson.take(100)}")
+                } else {
+                    Log.d("CafeDetailViewModel", "Menu JSON is NULL")
+                }
+                Log.d("CafeDetailViewModel", "====================")
 
                 CafeDetailUIState.Success(
                     cafe = cafe,

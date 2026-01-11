@@ -32,4 +32,6 @@ interface CafeDao {
 
     @Query("UPDATE cafes SET is_favorite = :isFavorite WHERE id = :cafeId")
     suspend fun updateFavoriteStatus(cafeId: Long, isFavorite: Boolean)
+    @Query("UPDATE cafes SET menu_json = :menuJson WHERE id = :cafeId")
+    suspend fun updateMenuJson(cafeId: Long, menuJson: String?)
 }

@@ -11,6 +11,8 @@ import com.example.coffepath.repository.PreferencesRepository
 import com.example.coffepath.mlkit.DrinkClassifier
 import com.example.coffepath.mlkit.MenuOCRReader
 import com.example.coffepath.repository.*
+import com.example.coffepath.utils.CafeVisitTracker
+import com.example.coffepath.utils.LocationService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -142,5 +144,21 @@ object AppModule {
     @Singleton
     fun provideMenuOCRReader(@ApplicationContext context: Context): MenuOCRReader {
         return MenuOCRReader(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationService(@ApplicationContext context: Context): LocationService {
+        return LocationService(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCafeVisitTracker(
+        locationService: LocationService,
+        userProfileRepository: IUserProfileRepository,
+        preferencesRepository: PreferencesRepository
+    ): CafeVisitTracker {
+        return CafeVisitTracker(locationService, userProfileRepository, preferencesRepository)
     }
 }
