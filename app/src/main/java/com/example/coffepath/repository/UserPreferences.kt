@@ -26,31 +26,4 @@ data class UserPreferences(
         }
     }
 
-    fun isCzechLanguage(): Boolean = languageCode == "cs"
-
-    fun isEnglishLanguage(): Boolean = languageCode == "en"
-
-    fun updateMapPosition(latitude: Double, longitude: Double, zoom: Float): UserPreferences {
-        return this.copy(
-            lastMapLatitude = latitude,
-            lastMapLongitude = longitude,
-            lastMapZoom = zoom
-        )
-    }
-
-    fun toggleTheme(): UserPreferences {
-        return this.copy(isDarkTheme = !isDarkTheme)
-    }
-
-    fun changeLanguage(newLanguageCode: String): UserPreferences {
-        return this.copy(languageCode = newLanguageCode)
-    }
-
-    fun markAsLaunched(): UserPreferences {
-        return this.copy(isFirstLaunch = false)
-    }
-
-    fun updateSyncTimestamp(): UserPreferences {
-        return this.copy(lastSyncTimestamp = System.currentTimeMillis())
-    }
 }

@@ -4,10 +4,8 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,126 +39,54 @@ fun PhotoPicker(
     var showPermissionRationale by remember { mutableStateOf(false) }
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let { tempUri ->
-            try {
-                val bitmap = PhotoUtils.loadBitmapFromUri(context, tempUri, 1024, 1024)
-                bitmap?.let {
-                    val correctedBitmap = PhotoUtils.correctImageOrientation(context, tempUri, it)
-                    val compressedBitmap = PhotoUtils.compressBitmap(correctedBitmap, 800, 800)
-                    val permanentUri = PhotoUtils.saveBitmapToFile(
-                        context,
-                        compressedBitmap,
-                        "profile_${System.currentTimeMillis()}"
-                    )
-                    permanentUri?.let { savedUri ->
-                        onImageSelected(savedUri)
-                    }
+    val handleUri: (Uri) -> Unit = { uri ->
+        try {
+            PhotoUtils.loadBitmapFromUri(context, uri, 1024, 1024)?.let { bitmap ->
+                val corrected = PhotoUtils.correctImageOrientation(context, uri, bitmap)
+                val compressed = PhotoUtils.compressBitmap(corrected, 800, 800)
+                PhotoUtils.saveBitmapToFile(context, compressed, "profile_${System.currentTimeMillis()}")?.let {
+                    onImageSelected(it)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-        }
+        } catch (e: Exception) { e.printStackTrace() }
     }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            tempCameraUri?.let { uri ->
-                onImageSelected(uri)
-            }
-        }
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+        it?.let { handleUri(it) }
     }
 
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
-            val uri = PhotoUtils.createImageUri(context, "profile_camera_${System.currentTimeMillis()}.jpg")
-            uri?.let {
-                tempCameraUri = it
-                cameraLauncher.launch(it)
-            }
-        } else {
-            showPermissionRationale = true
-        }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) tempCameraUri?.let { onImageSelected(it) }
     }
 
-    val galleryPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
-            galleryLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        } else {
-            showPermissionRationale = true
-        }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+        if (results.values.all { it }) showDialog = true else showPermissionRationale = true
     }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         if (showPreview && selectedImageUri != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        RoundedCornerShape(12.dp)
-                    )
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(12.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))) {
                 Image(
                     painter = rememberAsyncImagePainter(selectedImageUri),
-                    contentDescription = "Selected photo",
+                    contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                IconButton(
-                    onClick = onImageRemoved,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Remove photo",
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                IconButton(onClick = onImageRemoved, modifier = Modifier.align(Alignment.TopEnd)) {
+                    Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                 }
             }
         } else {
             OutlinedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clickable(enabled = enabled) { showDialog = true },
+                onClick = { showDialog = true },
+                enabled = enabled,
+                modifier = Modifier.fillMaxWidth().height(200.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.AddAPhoto,
-                        contentDescription = "Add photo",
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Tap to add photo",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.AddAPhoto, null, Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
+                    Text("Tap to add photo", style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
@@ -169,87 +95,47 @@ fun PhotoPicker(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Choose photo source") },
+            title = { Text("Choose source") },
             text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = {
-                            showDialog = false
-                            if (PermissionUtils.hasCameraPermissions(context)) {
-                                val uri = PhotoUtils.createImageUri(
-                                    context,
-                                    "profile_camera_${System.currentTimeMillis()}.jpg"
-                                )
-                                uri?.let {
-                                    tempCameraUri = it
-                                    cameraLauncher.launch(it)
-                                }
-                            } else {
-                                cameraPermissionLauncher.launch(PermissionUtils.CAMERA_PERMISSIONS)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SourceButton(Icons.Default.CameraAlt, "Take photo") {
+                        showDialog = false
+                        if (PermissionUtils.hasCameraPermissions(context)) {
+                            PhotoUtils.createImageUri(context, "cam_${System.currentTimeMillis()}.jpg")?.let {
+                                tempCameraUri = it
+                                cameraLauncher.launch(it)
                             }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.CameraAlt,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Take photo")
+                        } else permissionLauncher.launch(PermissionUtils.CAMERA_PERMISSIONS)
                     }
-
-                    OutlinedButton(
-                        onClick = {
-                            showDialog = false
-                            if (PermissionUtils.hasGalleryPermissions(context)) {
-                                galleryLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            } else {
-                                galleryPermissionLauncher.launch(PermissionUtils.GALLERY_PERMISSIONS)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.PhotoLibrary,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Choose from gallery")
+                    SourceButton(Icons.Default.PhotoLibrary, "Gallery") {
+                        showDialog = false
+                        galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 }
             },
             confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
-                }
-            }
+            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancel") } }
         )
     }
 
     if (showPermissionRationale) {
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
+            confirmButton = { TextButton(onClick = { showPermissionRationale = false }) { Text("OK") } },
             title = { Text("Permission required") },
-            text = {
-                Text(
-                    "This app needs camera and storage permissions to take and save photos. " +
-                            "Please grant the permissions in app settings."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { showPermissionRationale = false }) {
-                    Text("OK")
-                }
-            }
+            text = { Text("Camera permission is needed to take photos.") }
         )
+    }
+}
+
+@Composable
+fun SourceButton(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()) {
+        Icon(icon, null)
+        Spacer(Modifier.width(8.dp))
+        Text(label)
     }
 }
 

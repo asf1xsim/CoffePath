@@ -11,4 +11,5 @@ interface ICafeRepository {
     suspend fun insertCafes(cafes: List<Cafe>)
     suspend fun updateFavoriteStatus(cafeId: Long, isFavorite: Boolean)
     suspend fun fetchCafesFromApi(south: Double, west: Double, north: Double, east: Double): Result<OverpassResponse>
+    suspend fun updateCafe(cafe: Cafe)
 }

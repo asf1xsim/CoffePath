@@ -1,11 +1,14 @@
 package com.example.coffepath.ui.screens.review
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coffepath.mlkit.DrinkClassifier
+import com.example.coffepath.mlkit.MenuOCRReader
 import com.example.coffepath.mlkit.model.DrinkType
+import com.example.coffepath.mlkit.model.MenuOCRResult
 import com.example.coffepath.model.Review
 import com.example.coffepath.repository.ICafeRepository
 import com.example.coffepath.repository.IReviewRepository
@@ -13,6 +16,8 @@ import com.example.coffepath.repository.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,9 +26,9 @@ class AddReviewViewModel @Inject constructor(
     private val cafeRepository: ICafeRepository,
     private val reviewRepository: IReviewRepository,
     private val drinkClassifier: DrinkClassifier,
+    private val menuOCRReader: MenuOCRReader,
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
-
     private val cafeId: Long = savedStateHandle.get<Long>("cafeId") ?: -1L
 
     private val _uiState = MutableStateFlow(AddReviewUIState())
@@ -41,15 +46,12 @@ class AddReviewViewModel @Inject constructor(
             }
         }
     }
-
     fun updateRating(rating: Float) {
         _uiState.update { it.copy(rating = rating) }
     }
-
     fun updateComment(comment: String) {
         _uiState.update { it.copy(comment = comment) }
     }
-
     fun setPhoto(uri: Uri, autoClassify: Boolean = true) {
         _uiState.update { it.copy(photoUri = uri) }
 
@@ -57,12 +59,25 @@ class AddReviewViewModel @Inject constructor(
             classifyDrink(uri)
         }
     }
-
     fun removePhoto() {
         _uiState.update {
             it.copy(
                 photoUri = null,
                 detectedDrinkType = null
+            )
+        }
+    }
+    fun setMenuPhoto(uri: Uri, autoRecognize: Boolean = true) {
+        _uiState.update { it.copy(menuPhotoUri = uri) }
+        if (autoRecognize) {
+            recognizeMenu(uri)
+        }
+    }
+    fun removeMenuPhoto() {
+        _uiState.update {
+            it.copy(
+                menuPhotoUri = null,
+                menuOCRResult = null
             )
         }
     }
@@ -97,9 +112,39 @@ class AddReviewViewModel @Inject constructor(
         }
     }
 
+    fun recognizeMenu(imageUri: Uri) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRecognizingMenu = true, error = null) }
+
+            menuOCRReader.recognizeMenu(imageUri)
+                .onSuccess { result ->
+                    _uiState.update {
+                        it.copy(
+                            menuOCRResult = result,
+                            isRecognizingMenu = false
+                        )
+                    }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isRecognizingMenu = false,
+                            error = "Failed to recognize menu: ${exception.message}"
+                        )
+                    }
+                }
+        }
+    }
+
     fun reclassifyDrink() {
         _uiState.value.photoUri?.let { uri ->
             classifyDrink(uri)
+        }
+    }
+
+    fun rerecognizeMenu() {
+        _uiState.value.menuPhotoUri?.let { uri ->
+            recognizeMenu(uri)
         }
     }
 
@@ -109,6 +154,20 @@ class AddReviewViewModel @Inject constructor(
 
     fun clearDrinkType() {
         _uiState.update { it.copy(detectedDrinkType = null) }
+    }
+
+    private suspend fun saveMenuToCafe(cafeId: Long, menuResult: MenuOCRResult) {
+        try {
+            val cafe = cafeRepository.getCafeById(cafeId)
+            if (cafe != null) {
+                val menuJson = Json.encodeToString(menuResult)
+                val updatedCafe = cafe.copy(menuJson = menuJson)
+                cafeRepository.updateCafe(updatedCafe)
+                Log.d("AddReviewViewModel", "Menu saved successfully for cafe $cafeId")
+            }
+        } catch (e: Exception) {
+            Log.e("AddReviewViewModel", "Failed to save menu to cafe", e)
+        }
     }
 
     fun saveReview() {
@@ -135,6 +194,10 @@ class AddReviewViewModel @Inject constructor(
                 )
 
                 reviewRepository.insertReview(review)
+
+                currentState.menuOCRResult?.let { menuResult ->
+                    saveMenuToCafe(cafeId, menuResult)
+                }
 
                 _uiState.update {
                     it.copy(

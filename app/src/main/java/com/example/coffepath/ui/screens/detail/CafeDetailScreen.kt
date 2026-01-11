@@ -18,6 +18,7 @@ import com.example.coffepath.R
 import com.example.coffepath.model.Cafe
 import com.example.coffepath.model.Review
 import com.example.coffepath.navigation.INavigationRouter
+import com.example.coffepath.ui.components.CafeMenuSection
 import com.example.coffepath.ui.screens.detail.components.DetailRow
 import com.example.coffepath.ui.screens.detail.components.ReviewCard
 
@@ -208,6 +209,12 @@ fun CafeDetailContent(
                 label = stringResource(R.string.coordinates),
                 value = "${cafe.latitude}, ${cafe.longitude}"
             )
+        }
+
+        cafe.menuJson?.let { menuJson ->
+            item {
+                CafeMenuSection(menuJson = menuJson)
+            }
         }
 
         item {

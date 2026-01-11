@@ -90,7 +90,7 @@ fun ReviewCard(review: Review) {
             review.photoUri?.let { photoUri ->
                 Image(
                     painter = rememberAsyncImagePainter(photoUri),
-                    contentDescription = stringResource(R.string.add_photo), // [cite: 8, 65]
+                    contentDescription = stringResource(R.string.add_photo),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)

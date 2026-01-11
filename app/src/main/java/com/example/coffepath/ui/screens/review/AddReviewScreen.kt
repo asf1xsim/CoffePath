@@ -37,21 +37,13 @@ fun AddReviewScreen(
         }
     }
 
-    uiState.error?.let { error ->
-        LaunchedEffect(error) {
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.add_review)) },
                 navigationIcon = {
                     IconButton(onClick = { navigation.returnBack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
                     }
                 }
             )
@@ -66,87 +58,95 @@ fun AddReviewScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (uiState.cafeName.isNotEmpty()) {
-                Text(
-                    text = stringResource(R.string.review_for, uiState.cafeName),
-                    style = MaterialTheme.typography.titleLarge
-                )
+                Text(stringResource(R.string.review_for, uiState.cafeName), style = MaterialTheme.typography.titleLarge)
             }
 
-            Divider()
-
+            SectionHeader(stringResource(R.string.add_photo))
             PhotoPicker(
                 selectedImageUri = uiState.photoUri,
-                onImageSelected = { uri ->
-                    viewModel.setPhoto(uri, autoClassify = true)
-                },
-                onImageRemoved = {
-                    viewModel.removePhoto()
-                },
+                onImageSelected = { viewModel.setPhoto(it, autoClassify = true) },
+                onImageRemoved = viewModel::removePhoto,
                 enabled = !uiState.isSaving
             )
 
             if (uiState.isClassifying) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Text(stringResource(R.string.analyzing_drink))
-                    }
+                StatusCard(stringResource(R.string.analyzing_drink), true)
+            }
+
+            uiState.detectedDrinkType?.takeIf { it != DrinkType.UNKNOWN }?.let { drinkType ->
+                InfoCard(
+                    title = stringResource(R.string.detected_drink),
+                    content = drinkType.displayName,
+                    onRefresh = viewModel::reclassifyDrink,
+                    onClose = viewModel::clearDrinkType,
+                    isLoading = uiState.isClassifying
+                )
+            }
+
+            if (uiState.detectedDrinkType == null && uiState.photoUri != null) {
+                OutlinedButton(onClick = { showDrinkTypeDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.select_drink_manually))
                 }
             }
 
-            uiState.detectedDrinkType?.let { drinkType ->
-                if (drinkType != DrinkType.UNKNOWN) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
+            HorizontalDivider()
+            SectionHeader(stringResource(R.string.add_menu_optional))
+
+            PhotoPicker(
+                selectedImageUri = uiState.menuPhotoUri,
+                onImageSelected = { viewModel.setMenuPhoto(it, autoRecognize = true) },
+                onImageRemoved = viewModel::removeMenuPhoto,
+                enabled = !uiState.isSaving
+            )
+
+            if (uiState.isRecognizingMenu) {
+                StatusCard(stringResource(R.string.recognizing_menu), true)
+            }
+
+            uiState.menuOCRResult?.let { result ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = stringResource(R.string.detected_drink),
+                                    text = stringResource(R.string.menu_recognized),
                                     style = MaterialTheme.typography.labelMedium
                                 )
-                                Text(
-                                    text = drinkType.displayName,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                                if (result.detectedItems.isNotEmpty()) {
+                                    Text(
+                                        text = stringResource(R.string.menu_items_found, result.detectedItems.size),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
 
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 IconButton(
-                                    onClick = { viewModel.reclassifyDrink() },
-                                    enabled = !uiState.isClassifying
+                                    onClick = { viewModel.rerecognizeMenu() },
+                                    enabled = !uiState.isRecognizingMenu
                                 ) {
                                     Icon(
                                         Icons.Default.Refresh,
-                                        contentDescription = stringResource(R.string.reclassify)
+                                        contentDescription = stringResource(R.string.rerecognize)
                                     )
                                 }
 
                                 IconButton(
-                                    onClick = { viewModel.clearDrinkType() }
+                                    onClick = { viewModel.removeMenuPhoto() }
                                 ) {
                                     Icon(
                                         Icons.Default.Close,
@@ -155,126 +155,126 @@ fun AddReviewScreen(
                                 }
                             }
                         }
-                    }
-                }
-            }
 
-            if (uiState.detectedDrinkType == null && uiState.photoUri != null) {
-                OutlinedButton(
-                    onClick = { showDrinkTypeDialog = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.select_drink_manually))
-                }
-            }
-            if (showDrinkTypeDialog) {
-                DrinkTypeSelectionDialog(
-                    currentSelection = uiState.detectedDrinkType,
-                    onDismiss = { showDrinkTypeDialog = false },
-                    onSelect = { drinkType ->
-                        viewModel.setDrinkType(drinkType)
-                    }
-                )
-            }
-
-            Divider()
-
-            Text(
-                text = stringResource(R.string.rating_required),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            RatingBar(
-                rating = uiState.rating,
-                onRatingChanged = { viewModel.updateRating(it) },
-                enabled = !uiState.isSaving
-            )
-
-            if (uiState.rating > 0) {
-                Text(
-                    text = stringResource(R.string.stars, uiState.rating.toInt().toString()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Divider()
-
-            Text(
-                text = stringResource(R.string.comment_required),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            OutlinedTextField(
-                value = uiState.comment,
-                onValueChange = { viewModel.updateComment(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                placeholder = { Text(stringResource(R.string.comment_hint)) },
-                maxLines = 6,
-                enabled = !uiState.isSaving
-            )
-
-            Divider()
-
-            uiState.error?.let { error ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = error,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(onClick = { viewModel.clearError() }) {
-                            Icon(
-                                Icons.Default.Close,
-                                contentDescription = stringResource(R.string.dismiss),
-                                tint = MaterialTheme.colorScheme.onErrorContainer
+                        if (result.detectedItems.isNotEmpty()) {
+                            Divider()
+                            Text(
+                                text = stringResource(R.string.menu_items),
+                                style = MaterialTheme.typography.labelSmall
                             )
+                            result.detectedItems.take(5).forEach { item ->
+                                Text(
+                                    text = "• ${item.getFullDescription()}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            if (result.detectedItems.size > 5) {
+                                Text(
+                                    text = stringResource(R.string.and_more, result.detectedItems.size - 5),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
                         }
                     }
                 }
             }
 
+            HorizontalDivider()
+            SectionHeader(stringResource(R.string.rating_required))
+            RatingBar(uiState.rating, onRatingChanged = viewModel::updateRating, enabled = !uiState.isSaving)
+
+            SectionHeader(stringResource(R.string.comment_required))
+            OutlinedTextField(
+                value = uiState.comment,
+                onValueChange = viewModel::updateComment,
+                modifier = Modifier.fillMaxWidth().height(120.dp),
+                placeholder = { Text(stringResource(R.string.comment_hint)) },
+                enabled = !uiState.isSaving
+            )
+
+            uiState.error?.let { error ->
+                ErrorMessage(error, viewModel::clearError)
+            }
+
             Button(
-                onClick = { viewModel.saveReview() },
+                onClick = viewModel::saveReview,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.isValid && !uiState.isSaving
             ) {
-                if (uiState.isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(
-                    stringResource(
-                        if (uiState.isSaving) R.string.saving else R.string.submit_review
-                    )
-                )
+                if (uiState.isSaving) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                else Text(stringResource(R.string.submit_review))
             }
+        }
+    }
 
-            Text(
-                text = stringResource(R.string.required_fields),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+    if (showDrinkTypeDialog) {
+        DrinkTypeSelectionDialog(
+            currentSelection = uiState.detectedDrinkType,
+            onDismiss = { showDrinkTypeDialog = false },
+            onSelect = { viewModel.setDrinkType(it) }
+        )
+    }
+}
+@Composable
+private fun SectionHeader(text: String) = Text(text, style = MaterialTheme.typography.titleMedium)
 
-            Spacer(modifier = Modifier.height(16.dp))
+@Composable
+private fun StatusCard(text: String, showProgress: Boolean) {
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+        MaterialTheme.colorScheme.primaryContainer)) {
+        Row(
+            Modifier.padding(16.dp),
+            Arrangement.spacedBy(12.dp),
+            Alignment.CenterVertically) {
+            if (showProgress) CircularProgressIndicator(
+                Modifier.size(24.dp),
+                strokeWidth = 2.dp)
+            Text(text)
+        }
+    }
+}
+
+@Composable
+private fun InfoCard(title: String, content: String, onRefresh: () -> Unit, onClose: () -> Unit, isLoading: Boolean, extraContent: @Composable (() -> Unit)? = null) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Text(
+                        content,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                Row {
+                    IconButton(onClick = onRefresh, enabled = !isLoading) {
+                        Icon(Icons.Default.Refresh, null)
+                    }
+                    IconButton(onClick = onClose) {
+                        Icon(Icons.Default.Close, null)
+                    }
+                }
+            }
+            extraContent?.invoke()
+        }
+    }
+}
+
+@Composable
+private fun ErrorMessage(error: String, onDismiss: () -> Unit) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(MaterialTheme.colorScheme.errorContainer)) {
+        Row(Modifier.padding(16.dp), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+            Text(error, Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onErrorContainer)
+            IconButton(onClick = onDismiss) {
+                Icon(Icons.Default.Close, null)
+            }
         }
     }
 }

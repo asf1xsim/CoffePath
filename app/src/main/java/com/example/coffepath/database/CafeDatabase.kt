@@ -10,7 +10,7 @@ import com.example.coffepath.model.Cafe
 import com.example.coffepath.model.Review
 import com.example.coffepath.model.UserProfile
 
-@Database(entities = [Cafe::class, Review::class,UserProfile::class],version = 2,exportSchema = false)
+@Database(entities = [Cafe::class, Review::class,UserProfile::class],version = 3,exportSchema = false)
 abstract class CafeDatabase : RoomDatabase() {
 
     abstract fun cafeDao(): CafeDao
@@ -56,6 +56,11 @@ abstract class CafeDatabase : RoomDatabase() {
                 """.trimIndent())
             }
         }
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE cafes ADD COLUMN menu_json TEXT")
+            }
+        }
         fun getDatabase(context: Context): CafeDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -63,7 +68,7 @@ abstract class CafeDatabase : RoomDatabase() {
                     CafeDatabase::class.java,
                     "cafe_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance

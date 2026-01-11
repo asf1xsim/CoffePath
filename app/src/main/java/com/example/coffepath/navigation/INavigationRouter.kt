@@ -10,7 +10,6 @@ interface INavigationRouter {
     fun navigateToSearch()
     fun navigateToCafeDetail(cafeId: Long)
     fun navigateToAddReview(cafeId: Long)
-    fun navigateToMLKitTest()
     fun navigateToProfile()
     fun navigateToSettings()
 }

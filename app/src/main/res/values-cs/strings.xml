@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
     <string name="app_name">CoffeePath</string>
 
     <!-- Navigation -->
@@ -172,6 +172,31 @@
         <item quantity="few">%d kavárny na mapě</item>
         <item quantity="other">%d kaváren na mapě</item>
     </plurals>
+
+    <!-- Menu OCR in Reviews -->
+    <string name="add_menu_photo">Přidat fotku menu</string>
+    <string name="menu_photo">Fotka menu</string>
+    <string name="menu_photo_optional">Fotka menu (volitelné)</string>
+    <string name="menu_recognized">Menu rozpoznáno</string>
+    <string name="recognizing_menu">Rozpoznávám menu...</string>
+    <string name="menu_items_found">%d položek nalezeno</string>
+    <string name="menu_item_count">%d položka</string>
+    <string name="menu_items_count">%d položky</string>
+    <string name="menu_items_count_many">%d položek</string>
+    <string name="click_to_expand">Kliknutím zobrazíte všechny položky</string>
+    <string name="click_arrow_to_expand">Kliknutím na šipku zobrazíte všechny položky</string>
+    <string name="recognized_text">Rozpoznaný text:</string>
+    <string name="scan_menu_hint">Nasnímejte menu kavárny</string>
+    <string name="scan_cafe_menu">Nasnímejte menu kavárny</string>
+    <string name="add_menu_optional">Přidat menu (volitelné)</string>
+    <string name="error_recognize_menu">Nepodařilo se rozpoznat menu: %s</string>
+    <string name="confidence">Jistota: %d%%</string>
+    <string name="menu_items">Položky menu:</string>
+    <string name="and_more">... a ještě %d další</string>
+    <string name="rerecognize">Znovu rozpoznat</string>
+    <string name="menu_text_blocks">Textové bloky: %d</string>
+    <string name="detected_items">Rozpoznané položky</string>
+    <string name="tap_to_add_menu">Klepněte pro přidání menu</string>
 
     <!-- Common -->
     <string name="ok">OK</string>

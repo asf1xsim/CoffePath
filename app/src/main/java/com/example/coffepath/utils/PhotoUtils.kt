@@ -10,17 +10,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.camera.core.*
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 object PhotoUtils {
     private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
@@ -59,16 +51,7 @@ object PhotoUtils {
             null
         }
     }
-    fun loadBitmapFromUri(context: Context, uri: Uri): Bitmap? {
-        return try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
+
     fun loadBitmapFromUri(
         context: Context,
         uri: Uri,
@@ -170,136 +153,4 @@ object PhotoUtils {
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
-    fun deletePhoto(context: Context, uri: Uri): Boolean {
-        return try {
-            context.contentResolver.delete(uri, null, null) > 0
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    fun getPathFromUri(context: Context, uri: Uri): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-
-        return context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                cursor.getString(columnIndex)
-            } else {
-                null
-            }
-        }
-    }
-
-    fun createTempImageFile(context: Context): File {
-        val timestamp = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-            .format(System.currentTimeMillis())
-        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile("TEMP_${timestamp}_", PHOTO_EXTENSION, storageDir)
-    }
-
-    fun copyToInternalStorage(context: Context, uri: Uri, destinationFile: File): Boolean {
-        return try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                FileOutputStream(destinationFile).use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-            }
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-}
-
-class CameraConfiguration(
-    private val context: Context,
-    private val lifecycleOwner: LifecycleOwner
-) {
-    private var imageCapture: ImageCapture? = null
-    private var preview: Preview? = null
-    private var camera: Camera? = null
-
-    suspend fun initializeCamera(
-        previewView: androidx.camera.view.PreviewView,
-        lensFacing: Int = CameraSelector.LENS_FACING_BACK
-    ): Boolean = suspendCoroutine { continuation ->
-
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-        cameraProviderFuture.addListener({
-            try {
-                val cameraProvider = cameraProviderFuture.get()
-                preview = Preview.Builder()
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(previewView.surfaceProvider)
-                    }
-                imageCapture = ImageCapture.Builder()
-                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-                    .build()
-
-                val cameraSelector = CameraSelector.Builder()
-                    .requireLensFacing(lensFacing)
-                    .build()
-
-                cameraProvider.unbindAll()
-                camera = cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    imageCapture
-                )
-
-                continuation.resume(true)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                continuation.resume(false)
-            }
-        }, ContextCompat.getMainExecutor(context))
-    }
-    suspend fun takePicture(outputUri: Uri): Result<Uri> = suspendCoroutine { continuation ->
-        val imageCapture = imageCapture ?: run {
-            continuation.resume(Result.failure(IllegalStateException("Camera not initialized")))
-            return@suspendCoroutine
-        }
-
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(
-            context.contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, "photo_${System.currentTimeMillis()}")
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            }
-        ).build()
-
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(context),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    output.savedUri?.let { uri ->
-                        continuation.resume(Result.success(uri))
-                    } ?: continuation.resume(
-                        Result.failure(IOException("Failed to save image"))
-                    )
-                }
-                override fun onError(exception: ImageCaptureException) {
-                    continuation.resume(Result.failure(exception))
-                }
-            }
-        )
-    }
-    fun toggleFlash() {
-        camera?.let {
-            if (it.cameraInfo.hasFlashUnit()) {
-                val currentTorchState = it.cameraInfo.torchState.value ?: TorchState.OFF
-                it.cameraControl.enableTorch(currentTorchState == TorchState.OFF)
-            }
-        }
-    }
-    fun hasFlashUnit(): Boolean {
-        return camera?.cameraInfo?.hasFlashUnit() ?: false
-    }
 }

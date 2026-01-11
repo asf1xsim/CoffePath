@@ -39,8 +39,4 @@ class NavigationRouterImpl(private val navController: NavController) : INavigati
     override fun navigateToSettings() {
         navController.navigate(Destination.SettingsScreen.route)
     }
-
-    override fun navigateToMLKitTest() {
-        navController.navigate(Destination.MLKitTestScreen.route)
-    }
 }

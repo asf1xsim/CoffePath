@@ -27,7 +27,9 @@ data class Cafe(
     @ColumnInfo(name = "phone")
     val phone: String? = null,
     @ColumnInfo(name = "is_favorite")
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    @ColumnInfo(name = "menu_json")
+    val menuJson: String? = null
 ) : Serializable, ClusterItem {
 
     override fun getPosition(): LatLng {

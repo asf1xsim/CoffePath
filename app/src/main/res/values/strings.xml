@@ -173,6 +173,31 @@
         <item quantity="other">%d cafes on map</item>
     </plurals>
 
+    <!-- Menu OCR in Reviews -->
+    <string name="add_menu_photo">Add Menu Photo</string>
+    <string name="menu_photo">Menu Photo</string>
+    <string name="menu_photo_optional">Menu Photo (Optional)</string>
+    <string name="menu_recognized">Menu Recognized</string>
+    <string name="recognizing_menu">Recognizing menu...</string>
+    <string name="menu_items_found">%d items found</string>
+    <string name="menu_item_count">%d item</string>
+    <string name="menu_items_count">%d items</string>
+    <string name="menu_items_count_many">%d items</string>
+    <string name="click_to_expand">Click to show all items</string>
+    <string name="click_arrow_to_expand">Click the arrow to show all items</string>
+    <string name="recognized_text">Recognized text:</string>
+    <string name="scan_menu_hint">Scan the cafe\'s menu</string>
+    <string name="scan_cafe_menu">Scan the cafe\'s menu</string>
+    <string name="add_menu_optional">Add Menu (Optional)</string>
+    <string name="error_recognize_menu">Failed to recognize menu: %s</string>
+    <string name="confidence">Confidence: %d%%</string>
+    <string name="menu_items">Menu Items:</string>
+    <string name="and_more">... and %d more</string>
+    <string name="rerecognize">Re-recognize</string>
+    <string name="menu_text_blocks">Text blocks: %d</string>
+    <string name="detected_items">Detected Items</string>
+    <string name="tap_to_add_menu">Tap to add menu</string>
+
     <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>

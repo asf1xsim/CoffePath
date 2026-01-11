@@ -54,4 +54,8 @@ class CafeRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun updateCafe(cafe: Cafe) {
+        cafeDao.update(cafe)
+    }
 }

@@ -59,9 +59,7 @@ class CafeDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val newStatus = !currentStatus
-
                 cafeRepository.updateFavoriteStatus(cafeId, newStatus)
-
                 val userId = preferencesRepository.userIdFlow.first()
                 if (newStatus) {
                     Log.d("CafeDetailViewModel", "Incrementing favorites count for user: $userId")
@@ -70,7 +68,6 @@ class CafeDetailViewModel @Inject constructor(
                     Log.d("CafeDetailViewModel", "Decrementing favorites count for user: $userId")
                     userProfileRepository.decrementFavoritesCount(userId)
                 }
-
                 loadCafeDetails()
             } catch (e: Exception) {
                 Log.e("CafeDetailViewModel", "Error toggling favorite", e)

@@ -4,9 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 
 object PermissionUtils {
@@ -40,35 +37,6 @@ object PermissionUtils {
     }
     fun hasGalleryPermissions(context: Context): Boolean {
         return hasPermissions(context, GALLERY_PERMISSIONS)
-    }
-    fun createPermissionLauncher(
-        activity: ComponentActivity,
-        onResult: (Map<String, Boolean>) -> Unit
-    ): ActivityResultLauncher<Array<String>> {
-        return activity.registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            onResult(permissions)
-        }
-    }
-}
-
-class PermissionManager(
-    private val context: Context
-) {
-    fun checkCameraPermission(): PermissionStatus {
-        return if (PermissionUtils.hasCameraPermissions(context)) {
-            PermissionStatus.Granted
-        } else {
-            PermissionStatus.NotGranted
-        }
-    }
-    fun checkGalleryPermission(): PermissionStatus {
-        return if (PermissionUtils.hasGalleryPermissions(context)) {
-            PermissionStatus.Granted
-        } else {
-            PermissionStatus.NotGranted
-        }
     }
 }
 
