@@ -8,9 +8,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 
-/**
- * Базовый класс для Unit тестов с поддержкой корутин
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 open class BaseUnitTest {
 
