@@ -40,6 +40,7 @@ camera = "1.4.1"
 
 # Coil для загрузки изображений
 coil = "2.7.0"
+foundation = "1.10.0"
 
 
 
@@ -114,6 +115,7 @@ camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "
 
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -15,6 +15,9 @@ interface CafeDao {
     @Query("SELECT * FROM cafes WHERE id = :cafeId")
     suspend fun getCafeById(cafeId: Long): Cafe?
 
+    @Query("SELECT * FROM cafes WHERE id = :cafeId")
+    fun observeCafeById(cafeId: Long): Flow<Cafe?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cafes: List<Cafe>)
 

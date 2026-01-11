@@ -8,6 +8,7 @@ interface ICafeRepository {
     fun getAllCafes(): Flow<List<Cafe>>
     fun getFavoriteCafes(): Flow<List<Cafe>>
     suspend fun getCafeById(cafeId: Long): Cafe?
+    fun observeCafeById(cafeId: Long): Flow<Cafe?>
     suspend fun insertCafes(cafes: List<Cafe>)
     suspend fun updateFavoriteStatus(cafeId: Long, isFavorite: Boolean)
     suspend fun fetchCafesFromApi(south: Double, west: Double, north: Double, east: Double): Result<OverpassResponse>

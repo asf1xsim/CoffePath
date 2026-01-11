@@ -1,5 +1,6 @@
 package com.example.coffepath.ui.screens.detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -118,6 +120,7 @@ fun CafeDetailContent(
     reviewCount: Int,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -192,13 +195,35 @@ fun CafeDetailContent(
             item {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val url = if (!website.startsWith("http://") && !website.startsWith("https://")) {
+                                "https://$website"
+                            } else {
+                                website
+                            }
+                            try {
+                                uriHandler.openUri(url)
+                            } catch (e: Exception) {
+                            }
+                        }
+                        .padding(vertical = 4.dp)
                 ) {
-                    Icon(Icons.Default.Web, contentDescription = null)
+                    Icon(
+                        Icons.Default.Web,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                     Text(
                         text = website,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
+                        )
                     )
                 }
             }
@@ -207,8 +232,7 @@ fun CafeDetailContent(
         item {
             DetailRow(
                 label = stringResource(R.string.coordinates),
-                value = "${cafe.latitude}, ${cafe.longitude}"
-            )
+                value = "${cafe.latitude}, ${cafe.longitude}")
         }
 
         cafe.menuJson?.let { menuJson ->

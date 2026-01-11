@@ -26,6 +26,10 @@ class CafeRepositoryImpl @Inject constructor(
         return cafeDao.getCafeById(cafeId)
     }
 
+    override fun observeCafeById(cafeId: Long): Flow<Cafe?> {
+        return cafeDao.observeCafeById(cafeId)
+    }
+
     override suspend fun insertCafes(cafes: List<Cafe>) {
         cafeDao.insert(cafes)
     }
