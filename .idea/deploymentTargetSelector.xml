@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-01-11T12:02:05.672667800Z">
+        <DropdownSelection timestamp="2026-01-13T17:09:20.032903900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=KRCA79FI7PCYZPOF" />
@@ -13,19 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="favoritesScreen_showsEmptyState_whenNoFavorites()">
+      <SelectionState runConfigName="FavoritesScreenUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MapScreenTest">
+      <SelectionState runConfigName="ProfileScreenUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="CafeDetailScreenTest">
+      <SelectionState runConfigName="AddReviewScreenUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="SettingsScreenTest">
+      <SelectionState runConfigName="SearchScreenUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ProfileScreenTest">
+      <SelectionState runConfigName="SettingsScreenUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

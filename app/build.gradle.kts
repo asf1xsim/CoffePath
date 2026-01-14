@@ -26,6 +26,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+//        testInstrumentationRunner = "com.example.coffepath.HiltTestRunner"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -173,4 +174,28 @@ dependencies {
 
     testImplementation(libs.mockk)
     androidTestImplementation(libs.mockk.android)
+    // Unit тесты (запускаются на компьютере)
+    testImplementation(libs.mockito.kotlin)
+
+    // UI тесты (запускаются на эмуляторе/устройстве)
+    androidTestImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.compose.ui.test.junit4)
+
+    // Нужно для работы тестов Compose (отображение дерева узлов)
+    debugImplementation(libs.compose.ui.test.manifest)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler) // или ksp(libs.hilt.compiler)
+
+    // Hilt для UI-тестов
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.compiler)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // MockK для Android тестов
+    androidTestImplementation(libs.mockk.android)
+
+    // Coroutines Test
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 }

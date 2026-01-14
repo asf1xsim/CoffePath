@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -265,6 +266,7 @@ fun MapContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
+                    .testTag("progress_indicator")
             )
         }
 
@@ -297,7 +299,9 @@ fun LoadingMapState(paddingValues: PaddingValues) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.testTag("loading_indicator")
+            )
             Text(stringResource(R.string.loading_map))
         }
     }

@@ -55,6 +55,10 @@ test-core = "1.5.0"
 test-runner = "1.5.2"
 test-rules = "1.5.0"
 
+mockitoKotlin = "5.2.1"
+mockitoAndroid = "5.8.0"
+hilt = "2.50"
+
 
 
 [libraries]
@@ -146,6 +150,14 @@ test-rules = { group = "androidx.test", name = "rules", version.ref = "test-rule
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt_v" }
 # Ссылка на mockk-android
 mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockitoAndroid" }
+# Тестирование Compose
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+# Компилятор (общий для основного кода и тестов)
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -155,3 +167,7 @@ com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", versio
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }
 org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+[bundles]
+# Можно объединить тестовые библиотеки в группу
+testing-mockito = ["mockito-kotlin", "mockito-android"]
