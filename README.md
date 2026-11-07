@@ -13,13 +13,13 @@ An Android app for finding coffee shops and other places where you can get a cof
 
 ## Tech Stack
 
-- Android, [Kotlin]
-- [Jetpack Compose]
-- [Google Maps SDK] for the map
+- Android, Kotlin
+- Jetpack Compose
+- Google Maps SDK for the map
 - [Overpass API](https://overpass-api.de/) for fetching place data from OpenStreetMap
 - [ML Kit](https://developers.google.com/ml-kit) (Image Labeling) for drink recognition
-- [Room] for storing favorites and reviews
-- [OkHttp] for networking
+- Room for storing favorites and reviews
+- OkHttp for networking
 
 Drink recognition requires camera access. The app will ask for permission on first use.
 
