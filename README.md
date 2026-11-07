@@ -31,8 +31,8 @@ Drink recognition requires camera access. The app will ask for permission on fir
 
 ## Context
 
-University project for the course "[Vývoj aplikací pro Android 2]", Mendel University in Brno, 2025/2026.
+University project for the course "Vývoj aplikací pro Android 2", Mendel University in Brno, 2025/2026.
 
 ## Author
 
-[Anton Simikin]
+Anton Simikin
