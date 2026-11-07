@@ -1,4 +1,4 @@
-# Coffee Map
+# CoffeePath
 
 An Android app for finding coffee shops and other places where you can get a coffee. Places are loaded from OpenStreetMap via the Overpass API and displayed on a map. You can save your favorite places, leave reviews, and identify a drink from a photo using ML Kit.
 
